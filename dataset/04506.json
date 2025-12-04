@@ -1,0 +1,12 @@
+{
+  "Title": "Re-implementing ECDSA signature recovery",
+  "Content": "The Marmo project includes an [implementation of the ECDSA signature recovery function](https://github.com/ripio/marmo-contracts/blob/d3fb5922a4f01e47d585343d08cccfad659b3584/contracts/commons/SigUtils.sol#L10). This function is already part of the [OpenZeppelin package](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/v2.1.2/contracts/cryptography/ECDSA.sol#L16), which has been audited and is constantly reviewed by the community.\n\n\nConsider using the recover function from OpenZeppelin to reduce the code surface area.\n\n\nAn important point related to this implementation is that it is subject to signature malleability, which means that multiple signatures will be considered valid. This also affects the OpenZeppelin implementation, and it is currently being [discussed with the community to find the best solution](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1622). This issue does not affect the Marmo contracts because the signatures are not used as if they were unique. However, consider documenting this to make it clear that higher layer applications should not consider the signatures unique either.\n\n\n***Update:*** *The RCN team decided not to add external dependencies to their project*.\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/commons/SigUtils.sol",
+      "content": "pragma solidity ^0.5.0;\n\n\nlibrary SigUtils {\n    /**\n      @dev Recovers address who signed the message \n      @param _hash operation ethereum signed message hash\n      @param _signature message `hash` signature  \n    */\n    function ecrecover2 (\n        bytes32 _hash, \n        bytes memory _signature\n    ) internal pure returns (address) {\n        bytes32 r;\n        bytes32 s;\n        uint8 v;\n\n        assembly {\n            r := mload(add(_signature, 32))\n            s := mload(add(_signature, 64))\n            v := and(mload(add(_signature, 65)), 255)\n        }\n\n        if (v < 27) {\n            v += 27;\n        }\n\n        return ecrecover(\n            _hash,\n            v,\n            r,\n            s\n        );\n    }\n}"
+    }
+  ]
+}

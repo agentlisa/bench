@@ -1,0 +1,12 @@
+{
+  "Title": "Function variables could corrupt global variables",
+  "Content": "The helper function [`build_tag`](https://github.com/celo-org/celo-monorepo/blob/1c391af75e37da1108f426b5ff14b4766538c79e/packages/protocol/scripts/bash/release-lib.sh#L3) of the `release-lib.sh` script sets the values of its [`BRANCH`](https://github.com/celo-org/celo-monorepo/blob/1c391af75e37da1108f426b5ff14b4766538c79e/packages/protocol/scripts/bash/release-lib.sh#L4), [`LOG_FILE`](https://github.com/celo-org/celo-monorepo/blob/1c391af75e37da1108f426b5ff14b4766538c79e/packages/protocol/scripts/bash/release-lib.sh#L5), and [`BUILD_DIR`](https://github.com/celo-org/celo-monorepo/blob/1c391af75e37da1108f426b5ff14b4766538c79e/packages/protocol/scripts/bash/release-lib.sh#L8) variables. In Bash, by default [all variables are global](https://bash.cyberciti.biz/guide/Local_variable). Also, Bash functions cannot explicity return strings. So in the scripts that call `build_tag`, [their `BUILD_DIR`](https://github.com/celo-org/celo-monorepo/blob/1c391af75e37da1108f426b5ff14b4766538c79e/packages/protocol/scripts/bash/verify-deployed.sh#L35) variable is understood to take on the value set within the `build_tag` function.\n\n\nCurrently, the `BRANCH` and `LOG_FILE` variables are not used in scripts after their call to `build_tag`. But in future development to scripts using `BRANCH` and `LOG_FILE` variables, calling `build_tag` could unintentionally corrupt their values.\n\n\nConsider defining the `BRANCH` and `LOG_FILE` variables within `build_tag` to be `local` since they are not intended to be used outside the function body.\n\n\n**Update:** *This has been fixed in commit [c273843](https://github.com/celo-org/celo-monorepo/pull/7565/commits/c273843d857025a7837d0dd9c516f9e933835dd6).*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "packages/protocol/scripts/bash/release-lib.sh",
+      "content": "#!/usr/bin/env bash\n\nfunction build_tag() {\n  BRANCH=\"$1\"\n  LOG_FILE=\"$2\"\n\n  echo \" - Checkout contracts source code at $BRANCH\"\n  BUILD_DIR=$(echo build/$(echo $BRANCH | sed -e 's/\\//_/g'))\n  rm -r contracts\n  git checkout $BRANCH -- contracts 2>>$LOG_FILE >> $LOG_FILE\n\n  echo \" - Build contract artifacts at $BUILD_DIR\"\n  mv build/contracts build/contracts_tmp\n  yarn build:sol >> $LOG_FILE\n  rm -rf $BUILD_DIR && mkdir -p $BUILD_DIR\n  mv build/contracts $BUILD_DIR\n  mv build/contracts_tmp build/contracts\n\n  rm -r contracts\n  git checkout - -- contracts 2>>$LOG_FILE >> $LOG_FILE\n}"
+    }
+  ]
+}

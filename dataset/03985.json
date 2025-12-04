@@ -1,0 +1,12 @@
+{
+  "Title": "[L03] The initialize function is inconsistently declared in interfaces",
+  "Content": "The `initialize` function is declared in some interfaces (like in [`IExchange`](https://github.com/celo-org/celo-monorepo/blob/db2e561e1f13220a98743a7999818e48a5089d13/packages/protocol/contracts/stability/interfaces/IExchange.sol#L4)), but not in others (like in [`IAttestations`](https://github.com/celo-org/celo-monorepo/blob/db2e561e1f13220a98743a7999818e48a5089d13/packages/protocol/contracts/identity/interfaces/IAttestations.sol#L3)).\n\n\nThe `initialize` function plays a role similar to the constructor, so consider not declaring it in the interfaces. If it is important to add it for some reason, consider consistently adding it to all interfaces.\n\n\n***Update:** Fixed in [pull request #3124](https://github.com/celo-org/celo-monorepo/pull/3124). The interfaces no longer declare the `initialize` functions.*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "packages/protocol/contracts/stability/interfaces/IExchange.sol",
+      "content": "pragma solidity ^0.5.3;\n\ninterface IExchange {\n  function initialize(address, address, uint256, uint256, uint256, uint256) external;\n  function exchange(uint256, uint256, bool) external returns (uint256);\n  function setUpdateFrequency(uint256) external;\n  function getBuyTokenAmount(uint256, bool) external view returns (uint256);\n  function getSellTokenAmount(uint256, bool) external view returns (uint256);\n  function getBuyAndSellBuckets(bool) external view returns (uint256, uint256);\n}"
+    }
+  ]
+}

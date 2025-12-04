@@ -1,0 +1,12 @@
+{
+  "Title": "[N-10] Use a more recent version of solidity",
+  "Content": "\nUse a solidity version of at least 0.8.4 to get `bytes.concat()` instead of `abi.encodePacked(<bytes>,<bytes>)`\nUse a solidity version of at least 0.8.12 to get `string.concat()` instead of `abi.encodePacked(<str>,<str>)`\n\n*There is 1 instance of this issue:*\n\n```solidity\nFile: contracts-full/libraries/RocketPool.sol   #1\n\n1:    pragma solidity >=0.5.0;\n```\n\n<https://github.com/code-423n4/2022-05-alchemix/blob/71abbe683dfd5c0686b7e594fb4f78a14b668d8b/contracts-full/libraries/RocketPool.sol#L1>\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-05-alchemix",
+  "Code": [
+    {
+      "filename": "contracts-full/libraries/RocketPool.sol",
+      "content": "pragma solidity >=0.5.0;\n\nimport {IRETH} from \"../interfaces/external/rocket/IRETH.sol\";\nimport {IRocketStorage} from \"../interfaces/external/rocket/IRocketStorage.sol\";\n\nlibrary RocketPool {\n    /// @dev Gets the current rETH contract.\n    ///\n    /// @param self The rocket storage contract to read from.\n    ///\n    /// @return The current rETH contract.\n    function getRETH(IRocketStorage self) internal view returns (IRETH) {\n        return IRETH(self.getAddress(\n            keccak256(abi.encodePacked(\"contract.address\", \"rocketTokenRETH\"))\n        ));\n    }\n}"
+    }
+  ]
+}

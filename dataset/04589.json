@@ -1,0 +1,12 @@
+{
+  "Title": "Misuse of FinalizableCrowdsale",
+  "Content": "*(This was written for [a previous version](https://github.com/RenderToken/rendertoken/tree/fef74607fb78cdeb5e4e4eb735bccbbfe80853bd/contracts) that was audited, and it was later [fixed](https://github.com/kalinstoy/rendertoken/pull/1/commits/7dd53b9717b8a76278ef8566778b51a5ba5721ad).)*\n\n\nAs it is documented in the [comments](https://github.com/OpenZeppelin/zeppelin-solidity/blob/v1.2.0/contracts/crowdsale/FinalizableCrowdsale.sol#L32), to use `FinalizableCrowdsale` you must inherit from it and define a custom `finalization` function. Instead, `finalize` was [redefined](https://github.com/RenderToken/rendertoken/blob/fef74607fb78cdeb5e4e4eb735bccbbfe80853bd/contracts/RenderTokenCrowdsale.sol#L35). Although this isn’t causing any problems in the current state of the code, the misuse of the library hinders maintainability and may cause severe problems in future revisions. Remove this function and move the extra minting to a `finalization` function.\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/crowdsale/FinalizableCrowdsale.sol",
+      "content": "pragma solidity ^0.4.11;\n\nimport '../math/SafeMath.sol';\nimport '../ownership/Ownable.sol';\nimport './Crowdsale.sol';\n\n/**\n * @title FinalizableCrowdsale\n * @dev Extension of Crowsdale where an owner can do extra work\n * after finishing. By default, it will end token minting.\n */\ncontract FinalizableCrowdsale is Crowdsale, Ownable {\n  using SafeMath for uint256;\n\n  bool public isFinalized = false;\n\n  event Finalized();\n\n  // should be called after crowdsale ends, to do\n  // some extra finalization work\n  function finalize() onlyOwner {\n    require(!isFinalized);\n    require(hasEnded());\n\n    finalization();\n    Finalized();\n    \n    isFinalized = true;\n  }\n\n  // end token minting on finalization\n  // override this with custom logic if needed\n  function finalization() internal {\n    token.finishMinting();\n  }\n\n\n\n}"
+    }
+  ]
+}

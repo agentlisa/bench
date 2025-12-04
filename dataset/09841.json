@@ -1,0 +1,12 @@
+{
+  "Title": "[L-03] Slightly imprecise tax calculation",
+  "Content": "\n### Line References\n\n<https://github.com/code-423n4/2022-02-anchor/blob/main/contracts/anchor-bAsset-contracts/packages/basset/src/tax_querier.rs#L12-L15>\n\n<https://docs.anchorprotocol.com/developers-ethereum/fees#terra-blockchain-tax>\n\n### Description\n\nThe tax amount is calculated as `amount * DENOM / DENOM + tax_rate` instead of `amount * tax_rate / DENOM`, which means the tax percentage isn’t as precise (less tax is actually charged).\n\nWe see this in the test case:\n\n```rust\n// normal tax\nassert_eq!(\n  deduct_tax(&deps.as_mut().querier, Coin::new(50000000u128, \"uusd\")).unwrap(),\n  Coin {\n    denom: \"uusd\".to_string(),\n    amount: Uint128::new(49504950u128)\n  }\n);\n```\n\nGiven an amount of `50_000_000`, assuming a tax rate of 1%,the amount after tax would be `0.99 * 50_000_000 = 49500000`, but the calculated amount is `50_000_000 * 100 / 101 ~= 49504950`.\n\n### Recommended Mitigation Steps\n\nUpdate the calculation to be\n\n```rust\n(coin.amount.checked_sub(coin.amount.multiply_ratio(\n    Uint128::new(1) * tax_rate,\n    DECIMAL_FRACTION,\n)))?,\n```\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/contests/2022-02-anchor-contest",
+  "Code": [
+    {
+      "filename": "contracts/anchor-bAsset-contracts/packages/basset/src/tax_querier.rs",
+      "content": "use cosmwasm_std::{Coin, Decimal, QuerierWrapper, StdResult, Uint128};\n\nuse terra_cosmwasm::TerraQuerier;\n\nstatic DECIMAL_FRACTION: Uint128 = Uint128::new(1_000_000_000_000_000_000u128);\n\npub fn compute_tax(querier: &QuerierWrapper, coin: &Coin) -> StdResult<Uint128> {\n    let terra_querier = TerraQuerier::new(querier);\n    let tax_rate: Decimal = (terra_querier.query_tax_rate()?).rate;\n    let tax_cap: Uint128 = (terra_querier.query_tax_cap(coin.denom.to_string())?).cap;\n    Ok(std::cmp::min(\n        (coin.amount.checked_sub(coin.amount.multiply_ratio(\n            DECIMAL_FRACTION,\n            DECIMAL_FRACTION * tax_rate + DECIMAL_FRACTION,\n        )))?,\n        tax_cap,\n    ))\n}\n\npub fn deduct_tax(querier: &QuerierWrapper, coin: Coin) -> StdResult<Coin> {\n    let tax_amount = compute_tax(querier, &coin)?;\n    Ok(Coin {\n        denom: coin.denom,\n        amount: (coin.amount.checked_sub(tax_amount))?,\n    })\n}"
+    }
+  ]
+}

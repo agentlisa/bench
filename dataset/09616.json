@@ -1,0 +1,12 @@
+{
+  "Title": "[06] Use Address.sendValue() without import @openzeppelin/contracts/utils/Address.sol",
+  "Content": "\nAlthough `@openzeppelin/contracts/proxy/utils/Initializable.sol` is imported in `Core.sol`. A good coding practice should import `@openzeppelin/contracts/utils/Address.sol` when using it.\n\n### Proof of Concept\n\n[PCVDeposit.sol#L43](https://github.com/code-423n4/2022-03-volt/blob/main/contracts/pcv/PCVDeposit.sol#L43)<br>\n\n### Recommended Mitigation Steps\n\nImport `@openzeppelin/contracts/utils/Address.sol` in `PCVDeposit.sol`.\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-03-volt",
+  "Code": [
+    {
+      "filename": "contracts/pcv/PCVDeposit.sol",
+      "content": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity ^0.8.4;\n\nimport \"../refs/CoreRef.sol\";\nimport \"./IPCVDeposit.sol\";\nimport \"@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol\";\n\n/// @title abstract contract for withdrawing ERC-20 tokens using a PCV Controller\n/// @author Fei Protocol\nabstract contract PCVDeposit is IPCVDeposit, CoreRef {\n    using SafeERC20 for IERC20;\n\n    /// @notice withdraw ERC20 from the contract\n    /// @param token address of the ERC20 to send\n    /// @param to address destination of the ERC20\n    /// @param amount quantity of ERC20 to send\n    function withdrawERC20(\n        address token,\n        address to,\n        uint256 amount\n    ) public virtual override onlyPCVController {\n        _withdrawERC20(token, to, amount);\n    }\n\n    function _withdrawERC20(\n        address token,\n        address to,\n        uint256 amount\n    ) internal {\n        IERC20(token).safeTransfer(to, amount);\n        emit WithdrawERC20(msg.sender, token, to, amount);\n    }\n\n    /// @notice withdraw ETH from the contract\n    /// @param to address to send ETH\n    /// @param amountOut amount of ETH to send\n    function withdrawETH(address payable to, uint256 amountOut)\n        external\n        virtual\n        override\n        onlyPCVController\n    {\n        Address.sendValue(to, amountOut);\n        emit WithdrawETH(msg.sender, to, amountOut);\n    }\n\n    function balance() public view virtual override returns (uint256);\n\n    function resistantBalanceAndVolt()\n        public\n        view\n        virtual\n        override\n        returns (uint256, uint256)\n    {\n        return (balance(), 0);\n    }\n}"
+    }
+  ]
+}

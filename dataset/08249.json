@@ -1,0 +1,12 @@
+{
+  "Title": "[2] contracts/interfaces/ICollectionFactory.sol",
+  "Content": "\nIn `ICollectionFactory` on line [6](https://github.com/code-423n4/2022-08-foundation/blob/792e00df42/contracts/interfaces/ICollectionFactory.sol#L6), `IProxyCall` is never used and can safely be removed. Unless there is a plan to use it in the future. Maybe a comment explaining why it was imported here would be helpful.\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-08-foundation",
+  "Code": [
+    {
+      "filename": "contracts/interfaces/ICollectionFactory.sol",
+      "content": "// SPDX-License-Identifier: MIT OR Apache-2.0\n\npragma solidity ^0.8.12;\n\nimport \"./IRoles.sol\";\nimport \"./IProxyCall.sol\";\n\ninterface ICollectionFactory {\n  function rolesContract() external returns (IRoles);\n}"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "Title": "Nonreentrant functions should be marked external",
+  "Content": "As stated in [ReentrancyGuard.sol](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/40d2eb3007e82255d6837f907935b73ecf1cf21f/contracts/utils/ReentrancyGuard.sol#L21-L24), “calling a `nonReentrant` function from another `nonReentrant` function is not supported.” All nonreentrant functions should be marked as `external` rather than `public` to enforce this more explicitly.\n\n\nHowever, Solidity does not yet support structs as arguments of external functions (see [issue #5479](https://github.com/ethereum/solidity/issues/5479)). Consider adding a comment to prevent developers to call these `nonReentrant` functions from the same contract.\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/utils/ReentrancyGuard.sol",
+      "content": "pragma solidity ^0.5.2;\n\n/**\n * @title Helps contracts guard against reentrancy attacks.\n * @author Remco Bloemen <remco@2π.com>, Eenae <alexey@mixbytes.io>\n * @dev If you mark a function `nonReentrant`, you should also\n * mark it `external`.\n */\ncontract ReentrancyGuard {\n    /// @dev counter to allow mutex lock with only one SSTORE operation\n    uint256 private _guardCounter;\n\n    constructor () internal {\n        // The counter starts at one to prevent changing it from zero to a non-zero\n        // value, which is a more expensive operation.\n        _guardCounter = 1;\n    }\n\n    /**\n     * @dev Prevents a contract from calling itself, directly or indirectly.\n     * Calling a `nonReentrant` function from another `nonReentrant`\n     * function is not supported. It is possible to prevent this from happening\n     * by making the `nonReentrant` function external, and make it call a\n     * `private` function that does the actual work.\n     */\n    modifier nonReentrant() {\n        _guardCounter += 1;\n        uint256 localCounter = _guardCounter;\n        _;\n        require(localCounter == _guardCounter);\n    }\n}"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "Title": "[N-07] File is missing NatSpec",
+  "Content": "\n1.  File: contracts/interfaces/external/IChainLinkFeed.sol (line [0](https://github.com/code-423n4/2022-04-phuture/blob/594459d0865fb6603ba388b53f3f01648f5bb6fb/contracts/interfaces/external/IChainLinkFeed.sol#L0))\n\n```solidity\n// SPDX-License-Identifier: GPL-2.0-or-later\n```\n\n2.  File: contracts/interfaces/external/IWETH.sol (line [0](https://github.com/code-423n4/2022-04-phuture/blob/594459d0865fb6603ba388b53f3f01648f5bb6fb/contracts/interfaces/external/IWETH.sol#L0))\n\n```solidity\n// SPDX-License-Identifier: GPL-2.0-or-later\n```\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-04-phuture",
+  "Code": [
+    {
+      "filename": "contracts/interfaces/external/IChainLinkFeed.sol",
+      "content": "// SPDX-License-Identifier: GPL-2.0-or-later\n\npragma solidity >=0.8.7;\n\ninterface IChainLinkFeed {\n    function latestAnswer() external view returns (int);\n}"
+    },
+    {
+      "filename": "contracts/interfaces/external/IWETH.sol",
+      "content": "// SPDX-License-Identifier: GPL-2.0-or-later\n\npragma solidity >=0.8.7;\n\ninterface IWETH {\n    function deposit() external payable;\n\n    function transfer(address to, uint value) external returns (bool);\n\n    function withdraw(uint) external;\n}"
+    }
+  ]
+}

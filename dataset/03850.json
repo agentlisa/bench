@@ -1,0 +1,12 @@
+{
+  "Title": "Wrongly used `safeApprove`",
+  "Content": "##### Description\nAt line https://github.com/bondappetit/bondappetit-protocol/blob/88680691fe8d872c5fc26e9500d19cf7caaa9861/contracts/Treasury.sol#L51 contract call `safeApprove` method, however that method fails if account have remaining allowed tokens.\n\n##### Recommendation\nWe suggest to reset approval calling\n```soldity\nERC20(token).safeApprove(recipient, 0);\n```\nbefore setting new approval\n",
+  "Impact": "HIGH",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/Treasury.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.6.0;\n\nimport \"@openzeppelin/contracts/math/SafeMath.sol\";\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\nimport \"@openzeppelin/contracts/token/ERC20/SafeERC20.sol\";\nimport \"./utils/AccessControl.sol\";\n\ncontract Treasury is AccessControl {\n    using SafeMath for uint256;\n    using SafeERC20 for ERC20;\n\n    receive() external payable {}\n\n    /**\n     * @notice Transfer target token to recipient.\n     * @param token Target token.\n     * @param recipient Recipient.\n     * @param amount Transfer amount.\n     */\n    function transfer(\n        address token,\n        address recipient,\n        uint256 amount\n    ) external onlyAllowed returns (bool) {\n        ERC20(token).safeTransfer(recipient, amount);\n        return true;\n    }\n\n    /**\n     * @notice Transfer ETH to recipient.\n     * @param recipient Recipient.\n     * @param amount Transfer amount.\n     */\n    function transferETH(address payable recipient, uint256 amount) external onlyAllowed returns (bool) {\n        recipient.transfer(amount);\n        return true;\n    }\n\n    /**\n     * @notice Approve target token to recipient.\n     * @param token Target token.\n     * @param recipient Recipient.\n     * @param amount Approve amount.\n     */\n    function approve(\n        address token,\n        address recipient,\n        uint256 amount\n    ) external onlyAllowed returns (bool) {\n        ERC20(token).safeApprove(recipient, amount);\n        return true;\n    }\n}"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "Title": "[02] Be consistent in the code logic when emitting events in setter functions",
+  "Content": "By convention, it's recommended emitting the old value followed by the new one in the same event instead of the other way round.\n\nHere's one instance found:\n\nhttps://github.com/code-423n4/2023-10-ethena/blob/main/contracts/USDe.sol#L23-L26\n\n```diff  \n  function setMinter(address newMinter) external onlyOwner {\n-    emit MinterUpdated(newMinter, minter);\n+    emit MinterUpdated(minter, newMinter);\n    minter = newMinter;\n  }\n```\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2023-10-ethena",
+  "Code": [
+    {
+      "filename": "contracts/USDe.sol",
+      "content": "// SPDX-License-Identifier: GPL-3.0\npragma solidity 0.8.19;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\nimport \"@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol\";\nimport \"@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol\";\nimport \"@openzeppelin/contracts/access/Ownable2Step.sol\";\nimport \"./interfaces/IUSDeDefinitions.sol\";\n\n/**\n * @title USDe\n * @notice Stable Coin Contract\n * @dev Only a single approved minter can mint new tokens\n */\ncontract USDe is Ownable2Step, ERC20Burnable, ERC20Permit, IUSDeDefinitions {\n  address public minter;\n\n  constructor(address admin) ERC20(\"USDe\", \"USDe\") ERC20Permit(\"USDe\") {\n    if (admin == address(0)) revert ZeroAddressException();\n    _transferOwnership(admin);\n  }\n\n  function setMinter(address newMinter) external onlyOwner {\n    emit MinterUpdated(newMinter, minter);\n    minter = newMinter;\n  }\n\n  function mint(address to, uint256 amount) external {\n    if (msg.sender != minter) revert OnlyMinter();\n    _mint(to, amount);\n  }\n\n  function renounceOwnership() public view override onlyOwner {\n    revert CantRenounceOwnership();\n  }\n}"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "Title": "[02] `asDFactory.create()` does not prevent that two `asD` contracts might have the same name and symbol.",
+  "Content": "\n[asDFactory.sol#L33-L38](https://github.com/code-423n4/2023-11-canto/blob/335930cd53cf9a137504a57f1215be52c6d67cb3/asD/src/asDFactory.sol#L33-L38)\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2023-11-canto",
+  "Code": [
+    {
+      "filename": "asD/src/asDFactory.sol",
+      "content": "// SPDX-License-Identifier: GPL-3.0-only\npragma solidity >=0.8.0;\n\nimport {Turnstile} from \"../interface/Turnstile.sol\";\nimport {Ownable2Step} from \"@openzeppelin/contracts/access/Ownable2Step.sol\";\nimport {asD} from \"./asD.sol\";\n\ncontract asDFactory is Ownable2Step {\n    /*//////////////////////////////////////////////////////////////\n                                 STATE\n    //////////////////////////////////////////////////////////////*/\n    address public immutable cNote;\n\n    /// @notice Stores the addresses of all created tokens, allowing third-party contracts to check if an address is a legit token\n    mapping(address => bool) public isAsD;\n\n    /*//////////////////////////////////////////////////////////////\n                                 EVENTS\n    //////////////////////////////////////////////////////////////*/\n    event CreatedToken(address token, string symbol, string name, address creator);\n\n    /// @notice Initiates CSR on main- and testnet\n    /// @param _cNote Address of the cNOTE token\n    constructor(address _cNote) {\n        cNote = _cNote;\n        if (block.chainid == 7700 || block.chainid == 7701) {\n            // Register CSR on Canto main- and testnet\n            Turnstile turnstile = Turnstile(0xEcf044C5B4b867CFda001101c617eCd347095B44);\n            turnstile.register(tx.origin);\n        }\n    }\n\n    function create(string memory _name, string memory _symbol) external returns (address) {\n        asD createdToken = new asD(_name, _symbol, msg.sender, cNote, owner());\n        isAsD[address(createdToken)] = true;\n        emit CreatedToken(address(createdToken), _symbol, _name, msg.sender);\n        return address(createdToken);\n    }\n}"
+    }
+  ]
+}

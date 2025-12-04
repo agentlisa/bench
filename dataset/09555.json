@@ -1,0 +1,12 @@
+{
+  "Title": "[G-01] Using `1` and `2` rather than `0` and `1` saves gas",
+  "Content": "\nSee [this](https://github.com/code-423n4/2022-01-yield-findings/issues/102) issue from a prior contest for details\n\n1.  File: src/DepositHandler.sol (lines [6-7](https://github.com/code-423n4/2022-04-axelar/blob/f1c8bfc16f82a27797f61cb3a310c0f936dce567/src/DepositHandler.sol#L6-L7))\n\n```solidity\n    uint256 internal constant IS_NOT_LOCKED = uint256(0);\n    uint256 internal constant IS_LOCKED = uint256(1);\n```\n\n",
+  "Impact": "GAS",
+  "Source": "https://code4rena.com/reports/2022-04-axelar",
+  "Code": [
+    {
+      "filename": "src/DepositHandler.sol",
+      "content": "// SPDX-License-Identifier: MIT\n\npragma solidity 0.8.9;\n\ncontract DepositHandler {\n    uint256 internal constant IS_NOT_LOCKED = uint256(0);\n    uint256 internal constant IS_LOCKED = uint256(1);\n\n    uint256 internal _lockedStatus = IS_NOT_LOCKED;\n\n    modifier noReenter() {\n        require(_lockedStatus == IS_NOT_LOCKED);\n\n        _lockedStatus = IS_LOCKED;\n        _;\n        _lockedStatus = IS_NOT_LOCKED;\n    }\n\n    function execute(address callee, bytes calldata data)\n        external\n        noReenter\n        returns (bool success, bytes memory returnData)\n    {\n        (success, returnData) = callee.call(data);\n    }\n\n    function destroy(address etherDestination) external noReenter {\n        selfdestruct(payable(etherDestination));\n    }\n}"
+    }
+  ]
+}

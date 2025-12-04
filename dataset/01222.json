@@ -1,0 +1,12 @@
+{
+  "Title": "In case of stock split, token holders will either gain or lose value",
+  "Content": "# In case of stock split, token holders will either gain or lose value\n\n### Severity\nMedium Risk\n\n### Relevant GitHub Links\n<a data-meta=\"codehawks-github-link\" href=\"https://github.com/Cyfrin/2023-09-ditto/blob/22b189fffa00101a94b3c717bdd84e87f1f259c5/contracts/tokens/Asset.sol#L1-L31\">https://github.com/Cyfrin/2023-09-ditto/blob/22b189fffa00101a94b3c717bdd84e87f1f259c5/contracts/tokens/Asset.sol#L1-L31</a>\n\n\n## Summary\nThe protocol intends to virtualize assets outside of just tokens and pegged stablecoins, such as real estate and stocks.\nStock split and reverse split may cause the token accounting to be inaccurate.\n\n## Vulnerability Details\nStock split and reverse split are very common in the stock market. There are many examples.\nFor instance, in a 2-for-1 stock split, a shareholder receives an additional share for each share held.\nIn the event of a stock split, the asset token representing the given stock will have wrong accounting when minting, since the split will remain unaccounted for.\n\n## Impact\nToken value can be lost or gained unfairly.\n\n## Tools Used\nManual Review\n\n## Recommendations\nDue to the nature of the issue and the unpredictability of the way the protocol might choose to handle complex assets like stocks, there is no 1 mitigation for this issue. There could be some kind of custom oracle to watch out for such stock events and rebase the virtual values accordingly.",
+  "Impact": "LOW",
+  "Source": "https://www.codehawks.com/contests/clm871gl00001mp081mzjdlwc",
+  "Code": [
+    {
+      "filename": "contracts/tokens/Asset.sol",
+      "content": "// SPDX-License-Identifier: GPL-3.0-only\npragma solidity 0.8.21;\n\nimport {ERC20} from \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract Asset is ERC20 {\n    address private immutable diamond;\n\n    error NotDiamond();\n\n    constructor(address diamondAddr, string memory name, string memory symbol)\n        ERC20(name, symbol)\n    {\n        diamond = diamondAddr;\n    }\n\n    modifier onlyDiamond() {\n        if (msg.sender != diamond) {\n            revert NotDiamond();\n        }\n        _;\n    }\n\n    function mint(address to, uint256 amount) external onlyDiamond {\n        _mint(to, amount);\n    }\n\n    function burnFrom(address account, uint256 amount) external onlyDiamond {\n        _burn(account, amount);\n    }\n}"
+    }
+  ]
+}

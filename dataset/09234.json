@@ -1,0 +1,12 @@
+{
+  "Title": "[L-10] `abi.encodePacked()` should not be used with dynamic types when passing the result to a hash function such as `keccak256()`",
+  "Content": "\nUse `abi.encode()` instead which will pad items to 32 bytes, which will [prevent hash collisions](https://docs.soliditylang.org/en/v0.8.13/abi-spec.html#non-standard-packed-mode) (e.g. `abi.encodePacked(0x123,0x456)` => `0x123456` => `abi.encodePacked(0x1,0x23456)`, but `abi.encode(0x123,0x456)` => `0x0...1230...456`). \"Unless there is a compelling reason, `abi.encode` should be preferred\". If there is only one argument to `abi.encodePacked()` it can often be cast to `bytes()` or `bytes32()` [instead](https://ethereum.stackexchange.com/questions/30912/how-to-compare-strings-in-solidity#answer-82739).\n\n*There is 1 instance of this issue:*\n\n```solidity\nFile: contracts-full/libraries/RocketPool.sol   #1\n\n14:               keccak256(abi.encodePacked(\"contract.address\", \"rocketTokenRETH\"))\n```\n\n<https://github.com/code-423n4/2022-05-alchemix/blob/71abbe683dfd5c0686b7e594fb4f78a14b668d8b/contracts-full/libraries/RocketPool.sol#L14>\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/contests/2022-05-alchemix-contest",
+  "Code": [
+    {
+      "filename": "contracts-full/libraries/RocketPool.sol",
+      "content": "pragma solidity >=0.5.0;\n\nimport {IRETH} from \"../interfaces/external/rocket/IRETH.sol\";\nimport {IRocketStorage} from \"../interfaces/external/rocket/IRocketStorage.sol\";\n\nlibrary RocketPool {\n    /// @dev Gets the current rETH contract.\n    ///\n    /// @param self The rocket storage contract to read from.\n    ///\n    /// @return The current rETH contract.\n    function getRETH(IRocketStorage self) internal view returns (IRETH) {\n        return IRETH(self.getAddress(\n            keccak256(abi.encodePacked(\"contract.address\", \"rocketTokenRETH\"))\n        ));\n    }\n}"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "Title": "[M-06] [WP-M2] `DEFAULT_ADMIN_ROLE` can approve arbitrary address to spend any amount from the `L1Escrow` contract",
+  "Content": "_Submitted by WatchPug_.\n\n<https://github.com/livepeer/arbitrum-lpt-bridge/blob/ebf68d11879c2798c5ec0735411b08d0bea4f287/contracts/L1/escrow/L1Escrow.sol#L21-L28>\n\n```solidity\nfunction approve(\n    address _token,\n    address _spender,\n    uint256 _value\n) public onlyRole(DEFAULT_ADMIN_ROLE) {\n    ApproveLike(_token).approve(_spender, _value);\n    emit Approve(_token, _spender, _value);\n}\n```\n\n`L1Escrow.sol#approve()` allows an address with `DEFAULT_ADMIN_ROLE` can approve an arbitrary amount of tokens to any address.\n\nWe believe this is unnecessary and poses a serious centralization risk.\n\nA malicious or compromised `DEFAULT_ADMIN_ROLE` address can take advantage of this, and steal all the funds from the `L1Escrow` contract.\n\n#### Recommendation\n\nConsider removing `approve()` function and approve `l1LPT` to `l1Gateway` in the constructor.\n\n**[yondonfu (Livepeer) acknowledged](https://github.com/code-423n4/2022-01-livepeer-findings/issues/195#issuecomment-1019662710):**\n > Likely won't change as we want to preserve the ability for protocol governance to move the LPT from the L1Escrow in the event of a L2 failure.\n\n\n\n",
+  "Impact": "MEDIUM",
+  "Source": "https://code4rena.com/reports/2022-01-livepeer",
+  "Code": [
+    {
+      "filename": "contracts/L1/escrow/L1Escrow.sol",
+      "content": "//SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\nimport {AccessControl} from \"@openzeppelin/contracts/access/AccessControl.sol\";\n\ninterface ApproveLike {\n    function approve(address, uint256) external;\n}\n\ncontract L1Escrow is AccessControl {\n    event Approve(\n        address indexed _token,\n        address indexed _spender,\n        uint256 _value\n    );\n\n    constructor() {\n        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());\n    }\n\n    function approve(\n        address _token,\n        address _spender,\n        uint256 _value\n    ) public onlyRole(DEFAULT_ADMIN_ROLE) {\n        ApproveLike(_token).approve(_spender, _value);\n        emit Approve(_token, _spender, _value);\n    }\n}"
+    }
+  ]
+}

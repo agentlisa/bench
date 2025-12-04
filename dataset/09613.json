@@ -1,0 +1,12 @@
+{
+  "Title": "[03] Unnecessary usage of `init()`",
+  "Content": "\nSince `Core` contract does not go through a proxy, and the caller of `init()` is the same as the deployer in deploy script, it is unnecessary to use init functions.\n\n### Proof of Concept\n\n[Core.sol#L20](https://github.com/code-423n4/2022-03-volt/blob/main/contracts/core/Core.sol#L20)<br>\n\n### Recommended Mitigation Steps\n\nConsider putting `init()` logic into `constructor` instead and stop inheriting Initializable.\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-03-volt",
+  "Code": [
+    {
+      "filename": "contracts/core/Core.sol",
+      "content": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity ^0.8.4;\n\nimport {Vcon} from \"../vcon/Vcon.sol\";\nimport {IVolt, Volt, IERC20} from \"../volt/Volt.sol\";\nimport {ICore} from \"./ICore.sol\";\nimport {Permissions} from \"./Permissions.sol\";\nimport {Initializable} from \"@openzeppelin/contracts/proxy/utils/Initializable.sol\";\n\n/// @title Source of truth for VOLT Protocol\n/// @author Fei Protocol\n/// @notice maintains roles, access control, Volt, Vcon, and the Vcon treasury\ncontract Core is ICore, Permissions, Initializable {\n    /// @notice the address of the FEI contract\n    IVolt public override volt;\n\n    /// @notice the address of the Vcon contract\n    IERC20 public override vcon;\n\n    function init() external initializer {\n        volt = new Volt(address(this));\n        /// msg.sender already has the VOLT Minting abilities, so grant them governor as well\n        _setupGovernor(msg.sender);\n    }\n\n    /// @notice governor only function to set the VCON token\n    function setVcon(IERC20 _vcon) external onlyGovernor {\n        vcon = _vcon;\n\n        emit VconUpdate(_vcon);\n    }\n}"
+    }
+  ]
+}

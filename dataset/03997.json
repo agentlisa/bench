@@ -1,0 +1,12 @@
+{
+  "Title": "[L15] Missing revert messages in require statements",
+  "Content": "In line 30 of `ReentrancyGuard.sol` there is a [`require` statement](https://github.com/celo-org/celo-monorepo/blob/db2e561e1f13220a98743a7999818e48a5089d13/packages/protocol/contracts/common/libraries/ReentrancyGuard.sol#L30) without revert messages. This behavior results in an increased difficulty of debugging the system.\n\n\nConsider including specific and informative revert messages in all require statements.\n\n\n***Update:** Fixed in [pull request #3277](https://github.com/celo-org/celo-monorepo/pull/3277).*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "packages/protocol/contracts/common/libraries/ReentrancyGuard.sol",
+      "content": "pragma solidity ^0.5.2;\n\n/**\n * @title Helps contracts guard against reentrancy attacks.\n * @author Remco Bloemen <remco@2π.com>, Eenae <alexey@mixbytes.io>\n * @dev If you mark a function `nonReentrant`, you should also\n * mark it `external`.\n */\ncontract ReentrancyGuard {\n  /// @dev counter to allow mutex lock with only one SSTORE operation\n  uint256 private _guardCounter;\n\n  constructor() internal {\n    // The counter starts at one to prevent changing it from zero to a non-zero\n    // value, which is a more expensive operation.\n    _guardCounter = 1;\n  }\n\n  /**\n   * @dev Prevents a contract from calling itself, directly or indirectly.\n   * Calling a `nonReentrant` function from another `nonReentrant`\n   * function is not supported. It is possible to prevent this from happening\n   * by making the `nonReentrant` function external, and make it call a\n   * `private` function that does the actual work.\n   */\n  modifier nonReentrant() {\n    _guardCounter += 1;\n    uint256 localCounter = _guardCounter;\n    _;\n    require(localCounter == _guardCounter);\n  }\n}"
+    }
+  ]
+}

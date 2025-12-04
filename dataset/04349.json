@@ -1,0 +1,12 @@
+{
+  "Title": "[L08] Ownership transfer fails silently",
+  "Content": "The [`transferOwnership` function](https://github.com/AugurProject/augur/blob/67c0fec95e65fca8d27751f28a6c06e5247978c6/packages/augur-core/source/contracts/libraries/Ownable.sol#L39-L44) of the `Ownable` contract returns a boolean indicating if the transfer succeeds. However, it returns `true` in all cases, even when the `_newOwner` parameter is zero and the contract’s `owner` is not updated. Consider returning `false` in this scenario.\n\n\n**Update**: *Fixed in [commit `550a6511`](https://github.com/AugurProject/augur/pull/5567/commits/550a65111b0f065717bd6c7918a4802d8cc42a21).*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "packages/augur-core/source/contracts/libraries/Ownable.sol",
+      "content": "pragma solidity 0.5.10;\n\n\nimport 'ROOT/libraries/IOwnable.sol';\n\n\n/**\n * @title Ownable\n * @dev The Ownable contract has an owner address, and provides basic authorization control\n * functions, this simplifies the implementation of \"user permissions\".\n */\ncontract Ownable is IOwnable {\n    address internal owner;\n\n    /**\n     * @dev The Ownable constructor sets the original `owner` of the contract to the sender\n     * account.\n     */\n    constructor() public {\n        owner = msg.sender;\n    }\n\n    /**\n     * @dev Throws if called by any account other than the owner.\n     */\n    modifier onlyOwner() {\n        require(msg.sender == owner);\n        _;\n    }\n\n    function getOwner() public view returns (address) {\n        return owner;\n    }\n\n    /**\n     * @dev Allows the current owner to transfer control of the contract to a newOwner.\n     * @param _newOwner The address to transfer ownership to.\n     */\n    function transferOwnership(address _newOwner) public onlyOwner returns (bool) {\n        if (_newOwner != address(0)) {\n            onTransferOwnership(owner, _newOwner);\n            owner = _newOwner;\n        }\n        return true;\n    }\n\n    // Subclasses of this token may want to send additional logs through the centralized Augur log emitter contract\n    function onTransferOwnership(address, address) internal;\n}"
+    }
+  ]
+}

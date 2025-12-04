@@ -1,0 +1,12 @@
+{
+  "Title": "[G-09] Avoid using external call",
+  "Content": "\nAn if block check can be added as follows. With this control, gas saving is achieved by avoiding the use of external calls.\n\n```diff\npackages/v2-pool/src/base/OwnableTwoSteps.sol:\n  22      /// @inheritdoc IOwnableTwoSteps\n  23:     function setPendingOwner(address chosenPendingOwner) external override {\n- 24:         Ownership.checkIfOwner(owner);\n+ 24:         if (msg.sender == owner) revert NotOwner();\n  25: \n  26:         if (chosenPendingOwner == address(0)) Error.zeroAddress();\n  27:         chosenPendingOwner.checkIfAlreadyOwner(owner);\n  28: \n  29:         pendingOwner = chosenPendingOwner;\n  30: \n  31:         emit SetOwner(pendingOwner);\n  32:     }\n```\n\nhttps://github.com/code-423n4/2023-01-timeswap/blob/main/packages/v2-pool/src/base/OwnableTwoSteps.sol#L24\n\n",
+  "Impact": "GAS",
+  "Source": "https://code4rena.com/reports/2023-01-timeswap",
+  "Code": [
+    {
+      "filename": "packages/v2-pool/src/base/OwnableTwoSteps.sol",
+      "content": "//SPDX-License-Identifier: Unlicense\npragma solidity =0.8.8;\n\nimport {Error} from \"@timeswap-labs/v2-library/src/Error.sol\";\nimport {Ownership} from \"@timeswap-labs/v2-library/src/Ownership.sol\";\n\nimport {IOwnableTwoSteps} from \"../interfaces/IOwnableTwoSteps.sol\";\n\n/// @dev contract for ownable implementation with a safety two step owner transfership.\ncontract OwnableTwoSteps is IOwnableTwoSteps {\n    using Ownership for address;\n\n    /// @dev The current owner of the contract.\n    address public override owner;\n    /// @dev The pending owner of the contract. Is zero when none is pending.\n    address public override pendingOwner;\n\n    constructor(address chosenOwner) {\n        owner = chosenOwner;\n    }\n\n    /// @inheritdoc IOwnableTwoSteps\n    function setPendingOwner(address chosenPendingOwner) external override {\n        Ownership.checkIfOwner(owner);\n\n        if (chosenPendingOwner == address(0)) Error.zeroAddress();\n        chosenPendingOwner.checkIfAlreadyOwner(owner);\n\n        pendingOwner = chosenPendingOwner;\n\n        emit SetOwner(pendingOwner);\n    }\n\n    /// @inheritdoc IOwnableTwoSteps\n    function acceptOwner() external override {\n        msg.sender.checkIfPendingOwner(pendingOwner);\n\n        owner = msg.sender;\n        delete pendingOwner;\n\n        emit AcceptOwner(msg.sender);\n    }\n}"
+    }
+  ]
+}

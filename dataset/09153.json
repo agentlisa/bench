@@ -1,0 +1,12 @@
+{
+  "Title": "[N-14] Use a more recent version of solidity",
+  "Content": "\nUse a solidity version of at least 0.8.4 to get `bytes.concat()` instead of `abi.encodePacked(<bytes>,<bytes>)`\nUse a solidity version of at least 0.8.12 to get `string.concat()` instead of `abi.encodePacked(<str>,<str>)`\n\n*There is 1 instance of this issue:*\n\n```solidity\nFile: convex-platform/contracts/contracts/DepositToken.sol   #1\n\n2:    pragma solidity 0.6.12;\n```\n\n<https://github.com/code-423n4/2022-05-aura/blob/4989a2077546a5394e3650bf3c224669a0f7e690/convex-platform/contracts/contracts/DepositToken.sol#L2>\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-05-aura",
+  "Code": [
+    {
+      "filename": "convex-platform/contracts/contracts/DepositToken.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity 0.6.12;\n\nimport \"./Interfaces.sol\";\nimport \"@openzeppelin/contracts-0.6/math/SafeMath.sol\";\nimport \"@openzeppelin/contracts-0.6/token/ERC20/IERC20.sol\";\nimport \"@openzeppelin/contracts-0.6/utils/Address.sol\";\nimport \"@openzeppelin/contracts-0.6/token/ERC20/SafeERC20.sol\";\nimport \"@openzeppelin/contracts-0.6/token/ERC20/ERC20.sol\";\n\n\n/**\n * @title   DepositToken\n * @author  ConvexFinance\n * @notice  Simply creates a token that can be minted and burned from the operator\n */\ncontract DepositToken is ERC20 {\n    using SafeERC20 for IERC20;\n    using Address for address;\n    using SafeMath for uint256;\n\n    address public operator;\n\n    /**\n     * @param _operator         Booster\n     * @param _lptoken          Underlying LP token for deposits\n     * @param _namePostfix      Postfixes lpToken name\n     * @param _symbolPrefix     Prefixed lpToken symbol\n     */\n    constructor(\n        address _operator,\n        address _lptoken,\n        string memory _namePostfix,\n        string memory _symbolPrefix\n    )\n        public\n        ERC20(\n             string(\n                abi.encodePacked(ERC20(_lptoken).name(), _namePostfix)\n            ),\n            string(abi.encodePacked(_symbolPrefix, ERC20(_lptoken).symbol()))\n        )\n    {\n        operator =  _operator;\n    }\n    \n    function mint(address _to, uint256 _amount) external {\n        require(msg.sender == operator, \"!authorized\");\n        \n        _mint(_to, _amount);\n    }\n\n    function burn(address _from, uint256 _amount) external {\n        require(msg.sender == operator, \"!authorized\");\n        \n        _burn(_from, _amount);\n    }\n\n}"
+    }
+  ]
+}

@@ -46,22 +46,22 @@ LISA-Bench provides standardized evaluation for vulnerability detection systems.
 ## Data Format
 ```json
 {
-  "vulnerability_id": "unique identifier",
-  "code_snippet": "complete vulnerable code",
-  "vulnerability_type": "classification",
-  "severity": "High/Medium/Low/Gas",
-  "description": "expert analysis",
-  "impact": "consequences and exploits",
-  "recommendation": "remediation guidance",
-  "audit_source": "platform",
-  "project": "protocol and category",
-  "audit_date": "discovery timestamp"
+  "Title": "Short title of the vulnerability",
+  "Content": "Description of the vulnerability here...",
+  "Impact": "LOW/MEDIUM/HIGH/GAS_OPTIMIZATION",
+  "Source": "Where the vulnerability report is from",
+  "Code": [
+    {
+      "filename": "{file name here}",
+      "content": "{file content here}"
+    }
+  ]
 }
 ```
 
 ## Getting Started
 LISA-Bench is designed for immediate integration into research and development workflows:
-- Download the dataset in standardized JSON/CSV formats
+- Download the dataset in standardized JSON formats
 - Select evaluation subsets by severity, vulnerability type, or time period
 - Run foundation models using our reference implementation
 - Compare results against published benchmarks and industry standards

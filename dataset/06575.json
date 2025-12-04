@@ -1,0 +1,12 @@
+{
+  "Title": "[L-02] Incorrect function declaration in ICurveFactory interface",
+  "Content": "\nThe `deploy_pool` function doesn't exist in the Curve Factory contract (see https://github.com/curvefi/curve-factory/blob/master/contracts/Factory.vy).\n\nhttps://github.com/code-423n4/2023-05-xeth/blob/main/src/interfaces/ICurveFactory.sol#L5-L18\n\n```solidity\nfunction deploy_pool(\n    string memory name,\n    string memory symbol,\n    address[] memory coins,\n    uint256 A,\n    uint256 mid_fee,\n    uint256 out_fee,\n    uint256 allowed_extra_profit,\n    uint256 fee_gamma,\n    uint256 adjustment_step,\n    uint256 admin_fee,\n    uint256 ma_half_time,\n    uint256 initial_price\n) external returns (address);\n```\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2023-05-xeth",
+  "Code": [
+    {
+      "filename": "src/interfaces/ICurveFactory.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity 0.8.19;\n\ninterface ICurveFactory {\n    function deploy_pool(\n        string memory name,\n        string memory symbol,\n        address[] memory coins,\n        uint256 A,\n        uint256 mid_fee,\n        uint256 out_fee,\n        uint256 allowed_extra_profit,\n        uint256 fee_gamma,\n        uint256 adjustment_step,\n        uint256 admin_fee,\n        uint256 ma_half_time,\n        uint256 initial_price\n    ) external returns (address);\n\n    function deploy_plain_pool(\n        string memory name,\n        string memory symbol,\n        address[4] memory coins,\n        uint256 A,\n        uint256 fee,\n        uint256 asset_type,\n        uint256 impl_idx\n    ) external returns (address);\n}"
+    }
+  ]
+}

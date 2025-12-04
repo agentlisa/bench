@@ -1,0 +1,12 @@
+{
+  "Title": "Unnecessary setting on each mint",
+  "Content": "##### Description\nSetting base URI on each mint is unnecessary:\nhttps://github.com/Gearbox-protocol/gearbox-contracts/blob/0ac33ba87212ce056ac6b6357ad74161d417158a/contracts/tokens/GearNFT.sol#L14\n##### Recommendation\nWe recommend moving setting of base URI to constructor.",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/tokens/GearNFT.sol",
+      "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.7.4;\n\nimport {Ownable} from \"@openzeppelin/contracts/access/Ownable.sol\";\nimport {ERC721} from \"@openzeppelin/contracts/token/ERC721/ERC721.sol\";\n\ncontract GearBeta is ERC721, Ownable {\n\n    constructor() ERC721(\"Gear contributors token\", \"GEAR-NFT\") {\n    }\n\n    function mint(address to, uint256 tokenId) external onlyOwner {\n        _mint(to, tokenId);\n        _setBaseURI(\"https://nft.gearbox.fi/\");\n    }\n}"
+    }
+  ]
+}

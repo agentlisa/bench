@@ -1,0 +1,12 @@
+{
+  "Title": "[L18] Undocumented assembly blocks",
+  "Content": "The `CloneFactory` contract in `CloneFactory.sol` includes a function `createClone` with [an assembly block](https://github.com/AugurProject/augur/blob/9a33c3269e812d0cb66d49b61a72db58e32e4749/packages/augur-core/source/contracts/libraries/CloneFactory.sol#L9). Even though the function is taken from [EIP 1167](https://eips.ethereum.org/EIPS/eip-1167) where the functionality is documented, assembly is a low-level language that is harder to parse by readers. Consider including extensive inline documentation clearly explaining what every single assembly instruction does. This will make it easier for users to trust the code, for reviewers to verify it, and for developers to build on top of it or update it. Note that the use of assembly discards several important safety features of Solidity, which may render the code less safe and more error-prone. Hence, consider implementing thorough tests to cover all potential use cases of the `createClone` function to ensure it behaves as expected.\n\n\n***Update:*** *fixed in* [*`fe274f5`*](https://github.com/AugurProject/augur/commit/fe274f5fcf623c97355b051d2db212d47e22ce72) *by adding explanatory inline comments for each assembly instruction.*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "packages/augur-core/source/contracts/libraries/CloneFactory.sol",
+      "content": "pragma solidity 0.5.4;\n\n// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1167.md\n\n\ncontract CloneFactory {\n    function createClone(address target) internal returns (address result) {\n        bytes20 targetBytes = bytes20(target);\n        assembly {\n            let clone := mload(0x40)\n            mstore(clone, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000)\n            mstore(add(clone, 0x14), targetBytes)\n            mstore(add(clone, 0x28), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)\n            result := create(0, clone, 0x37)\n        }\n    }\n}"
+    }
+  ]
+}

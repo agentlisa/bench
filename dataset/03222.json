@@ -1,0 +1,12 @@
+{
+  "Title": "Unrestricted setter in `Machinery` contract",
+  "Content": "##### Description\nSetter for the mechanics registry [setMechanicsRegistry](https://github.com/yearn/hardhat-monorepo/blob/ecc0b5147992b34c315e08af170ceb4a5fe071ee/packages/contract-utils/contracts/utils/Machinery.sol#L22) has no access restriction. It can cause security breach in inherited contracts that lack security-aware override of `setMechanicsRegistry` function.\n##### Recommendation\nAlthough currently all of the inherited contracts from audited scope override `setMechanicsRegistry` properly, we recommend to prevent accidental inheritance of insecure code by modifying or removing `setMechanicsRegistry` function from `Machinery` contract. Additionally, this contract is most likely has been planned to be `abstract`.",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "packages/contract-utils/contracts/utils/Machinery.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity >=0.8.4 <0.9.0;\n\nimport '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';\nimport '../interfaces/utils/IMachinery.sol';\nimport '../interfaces/mechanics/IMechanicsRegistry.sol';\n\ncontract Machinery is IMachinery {\n  using EnumerableSet for EnumerableSet.AddressSet;\n\n  IMechanicsRegistry internal _mechanicsRegistry;\n\n  constructor(address __mechanicsRegistry) {\n    _setMechanicsRegistry(__mechanicsRegistry);\n  }\n\n  modifier onlyMechanic() {\n    require(_mechanicsRegistry.isMechanic(msg.sender), 'Machinery: not mechanic');\n    _;\n  }\n\n  function setMechanicsRegistry(address __mechanicsRegistry) external virtual override {\n    _setMechanicsRegistry(__mechanicsRegistry);\n  }\n\n  function _setMechanicsRegistry(address __mechanicsRegistry) internal {\n    _mechanicsRegistry = IMechanicsRegistry(__mechanicsRegistry);\n  }\n\n  // View helpers\n  function mechanicsRegistry() external view override returns (address _mechanicRegistry) {\n    return address(_mechanicsRegistry);\n  }\n\n  function isMechanic(address _mechanic) public view override returns (bool _isMechanic) {\n    return _mechanicsRegistry.isMechanic(_mechanic);\n  }\n}"
+    }
+  ]
+}

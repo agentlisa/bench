@@ -1,0 +1,16 @@
+{
+  "Title": "[G-03] Use `calldata` instead of `memory`",
+  "Content": "\nSome methods are declared as `external` but the arguments are defined as `memory` instead of as `calldata`.\n\nBy marking the function as `external` it is possible to use `calldata` in the arguments shown below and save significant gas.\n\n**Recommended change:**\n\n```diff\n-   function decodeString(bytes memory _input) external pure returns (string memory result) {\n+   function decodeString(bytes calldata _input) external pure returns (string memory result) {\n        (result) = abi.decode(_input, (string));\n    }\n```\n\n**Affected source code:**\n\n*   [ExternalDecoder.sol:10-12](https://github.com/code-423n4/2022-10-zksync/blob/4db6c596931a291b17a4e0e2929adf810a4a0eed/zksync/contracts/ExternalDecoder.sol#L10-L12)\n*   [ExternalDecoder.sol:15-17](https://github.com/code-423n4/2022-10-zksync/blob/4db6c596931a291b17a4e0e2929adf810a4a0eed/zksync/contracts/ExternalDecoder.sol#L15-L17)\n\n",
+  "Impact": "GAS",
+  "Source": "https://code4rena.com/contests/2022-10-zksync-v2-contest",
+  "Code": [
+    {
+      "filename": "zksync/contracts/ExternalDecoder.sol",
+      "content": "// SPDX-License-Identifier: MIT OR Apache-2.0\n\npragma solidity ^0.8.0;\n\n/// @author Matter Labs\n/// @dev The library with which it is possible to use `abi.decode` with error handling.\n/// @dev All functions in this library are public and should be called in a try-catch block to handle errors.\nlibrary ExternalDecoder {\n    /// @dev External function to decode a string from bytes.\n    function decodeString(bytes memory _input) external pure returns (string memory result) {\n        (result) = abi.decode(_input, (string));\n    }\n\n    /// @dev External function to decode a uint8 from bytes.\n    function decodeUint8(bytes memory _input) external pure returns (uint8 result) {\n        (result) = abi.decode(_input, (uint8));\n    }\n}"
+    },
+    {
+      "filename": "zksync/contracts/ExternalDecoder.sol",
+      "content": "// SPDX-License-Identifier: MIT OR Apache-2.0\n\npragma solidity ^0.8.0;\n\n/// @author Matter Labs\n/// @dev The library with which it is possible to use `abi.decode` with error handling.\n/// @dev All functions in this library are public and should be called in a try-catch block to handle errors.\nlibrary ExternalDecoder {\n    /// @dev External function to decode a string from bytes.\n    function decodeString(bytes memory _input) external pure returns (string memory result) {\n        (result) = abi.decode(_input, (string));\n    }\n\n    /// @dev External function to decode a uint8 from bytes.\n    function decodeUint8(bytes memory _input) external pure returns (uint8 result) {\n        (result) = abi.decode(_input, (uint8));\n    }\n}"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "Title": "[N-04] `2**<n> - 1` should be re-written as `type(uint<n>).max`",
+  "Content": "\nEarlier versions of solidity can use `uint<n>(-1)` instead. Expressions not including the `- 1` can often be re-written to accomodate the change (e.g. by using a `>` rather than a `>=`, which will also save some gas)\n\n*There is 1 instance of this issue:*\n\n```solidity\nFile: contracts-full/libraries/SafeCast.sol   #1\n\n13:       if (y >= 2**255) {\n```\n\n<https://github.com/code-423n4/2022-05-alchemix/blob/71abbe683dfd5c0686b7e594fb4f78a14b668d8b/contracts-full/libraries/SafeCast.sol#L13>\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-05-alchemix",
+  "Code": [
+    {
+      "filename": "contracts-full/libraries/SafeCast.sol",
+      "content": "// SPDX-License-Identifier: GPL-2.0-or-later\npragma solidity >=0.5.0;\n\nimport {IllegalArgument} from \"../base/Errors.sol\";\n\n/// @title Safe casting methods\n/// @notice Contains methods for safely casting between types\nlibrary SafeCast {\n  /// @notice Cast a uint256 to a int256, revert on overflow\n  /// @param y The uint256 to be casted\n  /// @return z The casted integer, now type int256\n  function toInt256(uint256 y) internal pure returns (int256 z) {\n    if (y >= 2**255) {\n      revert IllegalArgument();\n    }\n    z = int256(y);\n  }\n\n  /// @notice Cast a int256 to a uint256, revert on underflow\n  /// @param y The int256 to be casted\n  /// @return z The casted integer, now type uint256\n  function toUint256(int256 y) internal pure returns (uint256 z) {\n    if (y < 0) {\n      revert IllegalArgument();\n    }\n    z = uint256(y);\n  }\n}"
+    }
+  ]
+}

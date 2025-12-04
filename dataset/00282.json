@@ -1,0 +1,12 @@
+{
+  "Title": "Unchained initializers should be called in `PausableOwnable::__PausedOwnable_init` instead",
+  "Content": "While not an immediate issue in the current implementation, the direct use of initializer functions rather than their unchained equivalents should be avoided. These have been implemented and used in some places but not others, for example, [`__PausedOwnable_init`](https://github.com/wormhole-foundation/example-native-token-transfers/blob/f4e2277b358349dbfb8a654d19a925628d48a8af/evm/src/libraries/PausableOwnable.sol#L26-L29) which should be modified to avoid [potential duplicate initialization](https://docs.openzeppelin.com/contracts/5.x/upgradeable#multiple-inheritance) in future.\n\n```solidity\nfunction __PausedOwnable_init(address initialPauser, address owner) internal onlyInitializing {\n    __Paused_init(initialPauser);\n    __Ownable_init(owner);\n}\n```\n\n**Wormhole Foundation:** This has been reviewed and has to impact on the current contracts. Any contract changes in the the future will be reviewed, including changes to libraries.\n\n**Cyfrin:** Acknowledged.",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "evm/src/libraries/PausableOwnable.sol",
+      "content": "// SPDX-License-Identifier: Apache 2\n\npragma solidity >=0.8.8 <0.9.0;\n\nimport \"./PausableUpgradeable.sol\";\nimport \"./external/OwnableUpgradeable.sol\";\n\nabstract contract PausableOwnable is PausableUpgradeable, OwnableUpgradeable {\n    /*\n     * @dev Modifier to allow only the Pauser and the Owner to access pausing functionality\n     */\n    modifier onlyOwnerOrPauser() {\n        _checkOwnerOrPauser(owner());\n        _;\n    }\n\n    /*\n     * @dev Modifier to allow only the Pauser to access some functionality\n     */\n    function _checkOwnerOrPauser(address owner) internal view {\n        if (pauser() != msg.sender && owner != msg.sender) {\n            revert InvalidPauser(msg.sender);\n        }\n    }\n\n    function __PausedOwnable_init(address initialPauser, address owner) internal onlyInitializing {\n        __Paused_init(initialPauser);\n        __Ownable_init(owner);\n    }\n\n    /**\n     * @dev Transfers the ability to pause to a new account (`newPauser`).\n     */\n    function transferPauserCapability(address newPauser) public virtual onlyOwnerOrPauser {\n        PauserStorage storage $ = _getPauserStorage();\n        address oldPauser = $._pauser;\n        $._pauser = newPauser;\n        emit PauserTransferred(oldPauser, newPauser);\n    }\n}"
+    }
+  ]
+}

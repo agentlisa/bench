@@ -1,0 +1,12 @@
+{
+  "Title": "[03]  Rinkeby is not supported for Chainlink's VRF",
+  "Content": "Rinkeby is deprecated and not listed as supported for [Chainlink](https://docs.chain.link/docs/vrf/v1/supported-networks/). The documentation states `Once the Ethereum mainnet transitions to proof-of-stake, Rinkeby will no longer be an accurate staging environment for mainnet. ... Developers who currently use Rinkeby as a staging/testing environment should prioritize migrating to Goerli or Sepolia` [link](https://blog.ethereum.org/2022/06/21/testnet-deprecation)\n\n*There is 1 instance of this issue:*\n```solidity\nFile: /script/deploy/DeployRinkeby.s.sol\n\n6:   contract DeployRinkeby is DeployBase {\n\n```\nhttps://github.com/code-423n4/2022-09-artgobblers/blob/d2087c5a8a6a4f1b9784520e7fe75afa3a9cbdbe/script/deploy/DeployRinkeby.s.sol#L6\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-09-artgobblers",
+  "Code": [
+    {
+      "filename": "script/deploy/DeployRinkeby.s.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity >=0.8.0;\n\nimport {DeployBase} from \"./DeployBase.s.sol\";\n\ncontract DeployRinkeby is DeployBase {\n    address public immutable coldWallet = 0x126620598A797e6D9d2C280b5dB91b46F27A8330;\n\n    address public immutable root = 0x1D18077167c1177253555e45B4b5448B11E30b4b;\n\n    uint256 public immutable mintStart = 1656369768;\n\n    string public constant gobblerBaseUri = \"https://testnet.ag.xyz/api/nfts/gobblers/\";\n    string public constant gobblerUnrevealedUri = \"https://testnet.ag.xyz/api/nfts/unrevealed\";\n    string public constant pagesBaseUri = \"https://testnet.ag.xyz/api/nfts/pages/\";\n\n    constructor()\n        DeployBase(\n            // Team cold wallet:\n            coldWallet,\n            // Merkle root:\n            keccak256(abi.encodePacked(root)),\n            // Mint start:\n            mintStart,\n            // VRF coordinator:\n            address(0xb3dCcb4Cf7a26f6cf6B120Cf5A73875B7BBc655B),\n            // LINK token:\n            address(0x01BE23585060835E02B77ef475b0Cc51aA1e0709),\n            // Chainlink hash:\n            0x2ed0feb3e7fd2022120aa84fab1945545a9f2ffc9076fd6156fa96eaff4c1311,\n            // Chainlink fee:\n            0.1e18,\n            // Gobbler base URI:\n            gobblerBaseUri,\n            // Gobbler unrevealed URI:\n            gobblerUnrevealedUri,\n            // Pages base URI:\n            pagesBaseUri\n        )\n    {}\n}"
+    }
+  ]
+}

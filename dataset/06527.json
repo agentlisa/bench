@@ -1,0 +1,12 @@
+{
+  "Title": "[L-03] `transferEth()` should not copy returnData",
+  "Content": "https://github.com/code-423n4/2023-05-party/blob/main/contracts/utils/LibAddress.sol#L112-L14\n\nWe only care about transferring ETH in the `transferEth()` function and we do not do anything to the returnData. This also prevents any reverts caused by lacking gas due to large return data causing memory expansion which can be the case if the address receiving ether is a contract with a `fallback()` function that returns data and no `receive()` function. [This assembly block](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/contracts/libraries/SafeCall.sol#L52-L62) can be used in place of the `receiver.call{}()` code. It works the same but does not assign memory to any returnData.\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2023-05-party",
+  "Code": [
+    {
+      "filename": "contracts/utils/LibAddress.sol",
+      "content": "// SPDX-License-Identifier: GPL-3.0\npragma solidity 0.8.20;\n\nlibrary LibAddress {\n    error EthTransferFailed(address receiver, bytes errData);\n\n    // Transfer ETH with full gas stipend.\n    function transferEth(address payable receiver, uint256 amount) internal {\n        if (amount == 0) return;\n\n        (bool s, bytes memory r) = receiver.call{ value: amount }(\"\");\n        if (!s) {\n            revert EthTransferFailed(receiver, r);\n        }\n    }\n}"
+    }
+  ]
+}

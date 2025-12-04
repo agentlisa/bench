@@ -1,0 +1,12 @@
+{
+  "Title": "[L09] Low test coverage on some contracts",
+  "Content": "Writing tests is a critical part of the development process of a new protocol, as it allows developers to find bugs in their code before launch. While many of your contracts have 100% test coverage, a number of them have low test coverage, falling as low as 50% in [Governed.sol](https://github.com/BarnBridge/BarnBridge-SmartYieldBonds/blob/943df3a8fcd8dd128af3beb0c85a0480c0e95ead/contracts/Governed.sol#L5). Consider adding more tests for the contracts, aiming for at least 95% test coverage across all contracts.\n\n\n**Update**: *Improved in commit [`688c85a966ba7033230608e1682356d0e40ecd23`](https://github.com/BarnBridge/BarnBridge-SmartYieldBonds/commit/688c85a966ba7033230608e1682356d0e40ecd23mpn), but still under 95%. The referenced commit includes other changes to the codebase which have not been reviewed by OpenZeppelin.*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/Governed.sol",
+      "content": "// SPDX-License-Identifier: Apache-2.0\npragma solidity ^0.7.6;\npragma abicoder v2;\n\nabstract contract Governed {\n\n  address public dao;\n  address public guardian;\n\n  modifier onlyDao {\n    require(\n        dao == msg.sender,\n        \"GOV: not dao\"\n      );\n    _;\n  }\n\n  modifier onlyDaoOrGuardian {\n    require(\n      msg.sender == dao || msg.sender == guardian,\n      \"GOV: not dao/guardian\"\n    );\n    _;\n  }\n\n  constructor()\n  {\n    dao = msg.sender;\n    guardian = msg.sender;\n  }\n\n  function setDao(address dao_)\n    external\n    onlyDao\n  {\n    dao = dao_;\n  }\n\n  function setGuardian(address guardian_)\n    external\n    onlyDao\n  {\n    guardian = guardian_;\n  }\n\n}"
+    }
+  ]
+}

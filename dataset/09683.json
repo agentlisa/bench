@@ -1,0 +1,12 @@
+{
+  "Title": "[G-08] The usage of unchecked in average function in Math.sol can reduce deployment gas fee and contract size of HolyPaladinToken.sol",
+  "Content": "\n### Target codebase\n\n[Math.sol#L29](https://github.com/code-423n4/2022-03-paladin/blob/main/contracts/open-zeppelin/utils/Math.sol#L29)<br>\n\n    function average(uint256 a, uint256 b) internal pure returns (uint256) {\n        // (a + b) / 2 can overflow.\n        return (a & b) + (a ^ b) / 2;\n    }\n\nThe above logic would not overflow, so can use unchecked.\n\n### Potential improvements\n\n    function average(uint256 a, uint256 b) internal pure returns (uint256) {\n        // (a + b) / 2 can overflow.\n        unchecked {\n            return (a & b) + (a ^ b) / 2;\n        }\n    }\n\n### Deployment Gas change\n\n| Contract         | Before  | After   | Change |\n| ---------------- | ------- | ------- | ------ |\n| HolyPaladinToken | 5505231 | 5498742 | -6489  |\n\n### Contract size change\n\n| Contract         | Before | After  | Change(KB) |\n| ---------------- | ------ | ------ | ---------- |\n| HolyPaladinToken | 24.018 | 23.988 | -0.03      |\n\n***\n\n",
+  "Impact": "GAS",
+  "Source": "https://code4rena.com/reports/2022-03-paladin",
+  "Code": [
+    {
+      "filename": "contracts/open-zeppelin/utils/Math.sol",
+      "content": "// SPDX-License-Identifier: MIT\n\npragma solidity ^0.8.0;\n\n/**\n * @dev Standard math utilities missing in the Solidity language.\n */\nlibrary Math {\n    /**\n     * @dev Returns the largest of two numbers.\n     */\n    function max(uint256 a, uint256 b) internal pure returns (uint256) {\n        return a >= b ? a : b;\n    }\n\n    /**\n     * @dev Returns the smallest of two numbers.\n     */\n    function min(uint256 a, uint256 b) internal pure returns (uint256) {\n        return a < b ? a : b;\n    }\n\n    /**\n     * @dev Returns the average of two numbers. The result is rounded towards\n     * zero.\n     */\n    function average(uint256 a, uint256 b) internal pure returns (uint256) {\n        // (a + b) / 2 can overflow.\n        return (a & b) + (a ^ b) / 2;\n    }\n\n    /**\n     * @dev Returns the ceiling of the division of two numbers.\n     *\n     * This differs from standard division with `/` in that it rounds up instead\n     * of rounding down.\n     */\n    function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {\n        // (a + b - 1) / b can overflow on addition, so we distribute.\n        return a / b + (a % b == 0 ? 0 : 1);\n    }\n}"
+    }
+  ]
+}

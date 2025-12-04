@@ -1,0 +1,12 @@
+{
+  "Title": "Override Removes Supported Interface",
+  "Content": "The `Module` contract [overrides the `supportsInterface` function](https://github.com/latticexyz/mud/blob/12a9eb1afb18a7f7cb43d774cabb2d5af7c74e6b/packages/world/src/Module.sol#L19) and no longer supports the [`WORLD_CONTEXT_CONSUMER_INTERFACE_ID`](https://github.com/latticexyz/mud/blob/12a9eb1afb18a7f7cb43d774cabb2d5af7c74e6b/packages/world/src/WorldContext.sol#L53). This is inconsistent with the [equivalent `DelegationControl` override](https://github.com/latticexyz/mud/blob/12a9eb1afb18a7f7cb43d774cabb2d5af7c74e6b/packages/world/src/DelegationControl.sol#L21), which retains support for the `WORLD_CONTEXT_CONSUMER_INTERFACE_ID`.\n\n\nConsider ensuring ERC-165 support for all implemented interfaces.\n\n\n***Update:** Resolved in [pull request #2032](https://github.com/latticexyz/mud/pull/2032#pullrequestreview-1800335464).*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "packages/world/src/Module.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity >=0.8.21;\n\nimport { WorldContextConsumer } from \"./WorldContext.sol\";\nimport { IModule, MODULE_INTERFACE_ID } from \"./IModule.sol\";\nimport { IERC165, ERC165_INTERFACE_ID } from \"./IERC165.sol\";\n\n/**\n * @title Module\n * @dev Abstract contract that implements the ERC-165 supportsInterface function for IModule.\n */\nabstract contract Module is IModule, WorldContextConsumer {\n  /**\n   * @notice Checks if the given interfaceId is supported by this contract.\n   * @dev Overrides the functionality from IERC165 and WorldContextConsumer to check for supported interfaces.\n   * @param interfaceId The bytes4 identifier for the interface.\n   * @return true if the interface is supported, false otherwise.\n   */\n  function supportsInterface(\n    bytes4 interfaceId\n  ) public pure virtual override(IERC165, WorldContextConsumer) returns (bool) {\n    return interfaceId == MODULE_INTERFACE_ID || interfaceId == ERC165_INTERFACE_ID;\n  }\n}"
+    }
+  ]
+}

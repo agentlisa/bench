@@ -1,0 +1,12 @@
+{
+  "Title": "Unexpected return value from Time.hasHappened()",
+  "Content": "The [`hasHappened()`](https://github.com/dydxprotocol/solo/blob/17df84db351d5438e1b7437572722b4f52c8b2b4/contracts/protocol/lib/Time.sol#L42-L50) function in the [Time](https://github.com/dydxprotocol/solo/blob/17df84db351d5438e1b7437572722b4f52c8b2b4/contracts/protocol/lib/Time.sol) library will return `false` if the time is `0` instead of reverting. In the future, this may lead to a false positive if the function is being used to check if something hasn’t happened yet. Consider reverting when the input value is `0`.\n\n\n***Update:*** *Fixed in* [*pull request #220*](https://github.com/dydxprotocol/solo/pull/220)*.*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/protocol/lib/Time.sol",
+      "content": "/*\n\n    Copyright 2018 dYdX Trading Inc.\n\n    Licensed under the Apache License, Version 2.0 (the \"License\");\n    you may not use this file except in compliance with the License.\n    You may obtain a copy of the License at\n\n    http://www.apache.org/licenses/LICENSE-2.0\n\n    Unless required by applicable law or agreed to in writing, software\n    distributed under the License is distributed on an \"AS IS\" BASIS,\n    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n    See the License for the specific language governing permissions and\n    limitations under the License.\n\n*/\n\npragma solidity 0.5.4;\n\nimport { Math } from \"./Math.sol\";\n\n\n/**\n * @title Time\n * @author dYdX\n *\n * Library for dealing with time, assuming timestamps fit within 32 bits (valid until year 2106)\n */\nlibrary Time {\n\n    // ============ Library Functions ============\n\n    function currentTime()\n        internal\n        view\n        returns (uint32)\n    {\n        return Math.to32(block.timestamp);\n    }\n\n    function hasHappened(\n        uint32 time\n    )\n        internal\n        view\n        returns (bool)\n    {\n        return (time != 0) && (time <= currentTime());\n    }\n}"
+    }
+  ]
+}

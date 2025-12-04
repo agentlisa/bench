@@ -1,0 +1,12 @@
+{
+  "Title": "[G-25] Internal functions that are not called by the contract should be removed to save deployment gas",
+  "Content": "\nInternal functions in Solidity are only intended to be invoked within the contract or by other internal functions. If an internal function is not called anywhere within the contract, it serves no purpose and contributes unnecessary overhead during deployment. Removing such functions can lead to substantial gas savings.\n\n```solidity\n19     function transferRewards(address _asset, address _rewardsContract) internal returns (uint256 balance)\n```\n\nhttps://github.com/code-423n4/2023-05-maia/blob/main/src/rewards/depots/RewardsDepot.sol#L19\n\n",
+  "Impact": "GAS",
+  "Source": "https://code4rena.com/reports/2023-05-maia",
+  "Code": [
+    {
+      "filename": "src/rewards/depots/RewardsDepot.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\nimport {SafeCastLib} from \"solady/utils/SafeCastLib.sol\";\nimport {SafeTransferLib} from \"solady/utils/SafeTransferLib.sol\";\n\nimport {ERC20} from \"solmate/tokens/ERC20.sol\";\n\nimport {IRewardsDepot} from \"../interfaces/IRewardsDepot.sol\";\n\n/// @title Rewards Depot - Base contract for reward token storage\nabstract contract RewardsDepot is IRewardsDepot {\n    using SafeTransferLib for address;\n\n    ///  @inheritdoc IRewardsDepot\n    function getRewards() external virtual returns (uint256);\n\n    /// @notice Transfer balance of token to rewards contract\n    function transferRewards(address _asset, address _rewardsContract) internal returns (uint256 balance) {\n        balance = _asset.balanceOf(address(this));\n        _asset.safeTransfer(_rewardsContract, balance);\n    }\n\n    modifier onlyFlywheelRewards() virtual;\n}"
+    }
+  ]
+}

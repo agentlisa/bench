@@ -1,0 +1,12 @@
+{
+  "Title": "[M-08] Admin can rug L2 Escrow tokens leading to reputation risk",
+  "Content": "_Submitted by harleythedog_.\n\nThe `L1Escrow` contract has the function `approve` that is callable by the admin to approve an arbitrary spender with an arbitrary amount (so they can steal all of the escrow's holdings if they want). Even if the admin is well intended, the contract can still be called out which would degrade the reputation of the protocol (e.g. see here: <https://twitter.com/RugDocIO/status/1411732108029181960>). LPT is valuable on the Ethereum mainnet, so this rug vector should be mitigated. It would be best to restrict this function's power by only allowing approvals to other trusted protocol contracts (like L1LPTGateway, which I believe uses the escrow's approval).\n\nNOTE: Even if the admin is under a timelock, this is still an issue, as users have to wait a whole week to withdraw from L2 -> L1 due to the dispute period.\n\n#### Proof of Concept\n\nSee the `approve` function [here](https://github.com/livepeer/arbitrum-lpt-bridge/blob/ebf68d11879c2798c5ec0735411b08d0bea4f287/contracts/L1/escrow/L1Escrow.sol#L21)\n\n#### Recommended Mitigation Steps\n\nRestrict the power of this `approve` function so that the admin isn't able to steal funds. This can be accomplished by only allowing approvals to other protocol functions (instead of arbitrary approvals).\n\n**[yondonfu (Livepeer) acknowledged](https://github.com/code-423n4/2022-01-livepeer-findings/issues/165)** \n\n",
+  "Impact": "MEDIUM",
+  "Source": "https://code4rena.com/reports/2022-01-livepeer",
+  "Code": [
+    {
+      "filename": "contracts/L1/escrow/L1Escrow.sol",
+      "content": "//SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\nimport {AccessControl} from \"@openzeppelin/contracts/access/AccessControl.sol\";\n\ninterface ApproveLike {\n    function approve(address, uint256) external;\n}\n\ncontract L1Escrow is AccessControl {\n    event Approve(\n        address indexed _token,\n        address indexed _spender,\n        uint256 _value\n    );\n\n    constructor() {\n        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());\n    }\n\n    function approve(\n        address _token,\n        address _spender,\n        uint256 _value\n    ) public onlyRole(DEFAULT_ADMIN_ROLE) {\n        ApproveLike(_token).approve(_spender, _value);\n        emit Approve(_token, _spender, _value);\n    }\n}"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "Title": "[L-04] Open TODOs",
+  "Content": "\nCode architecture, incentives, and error handling/reporting questions/issues should be resolved before deployment\n\n1.  File: src/MintableCappedERC20.sol (line [30](https://github.com/code-423n4/2022-04-axelar/blob/f1c8bfc16f82a27797f61cb3a310c0f936dce567/src/MintableCappedERC20.sol#L30))\n\n```solidity\n    // TODO move burnFrom into a separate BurnableERC20 contract\n```\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-04-axelar",
+  "Code": [
+    {
+      "filename": "src/MintableCappedERC20.sol",
+      "content": "// SPDX-License-Identifier: MIT\n\npragma solidity 0.8.9;\n\nimport { IERC20BurnFrom } from './interfaces/IERC20BurnFrom.sol';\n\nimport { ERC20 } from './ERC20.sol';\nimport { ERC20Permit } from './ERC20Permit.sol';\nimport { Ownable } from './Ownable.sol';\n\ncontract MintableCappedERC20 is ERC20, ERC20Permit, Ownable, IERC20BurnFrom {\n    uint256 public cap;\n\n    constructor(\n        string memory name,\n        string memory symbol,\n        uint8 decimals,\n        uint256 capacity\n    ) ERC20(name, symbol, decimals) ERC20Permit(name) Ownable() {\n        cap = capacity;\n    }\n\n    function mint(address account, uint256 amount) public onlyOwner {\n        uint256 capacity = cap;\n        require(capacity == 0 || totalSupply + amount <= capacity, 'CAP_EXCEEDED');\n\n        _mint(account, amount);\n    }\n\n    // TODO move burnFrom into a separate BurnableERC20 contract\n    function burnFrom(address account, uint256 amount) external onlyOwner {\n        _approve(account, owner, allowance[account][owner] - amount);\n        _burn(account, amount);\n    }\n}"
+    }
+  ]
+}

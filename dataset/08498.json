@@ -1,0 +1,12 @@
+{
+  "Title": "[L‑02] Missing checks for `address(0x0)` when assigning values to `address` state variables",
+  "Content": "\n*There is 1 instance of this issue:*\n\n```solidity\nFile: contracts/dnssec-oracle/Owned.sol\n\n19:           owner = newOwner;\n\n```\n\n<https://github.com/code-423n4/2022-07-ens/blob/ff6e59b9415d0ead7daf31c2ed06e86d9061ae22/contracts/dnssec-oracle/Owned.sol#L19>\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-07-ens",
+  "Code": [
+    {
+      "filename": "contracts/dnssec-oracle/Owned.sol",
+      "content": "pragma solidity ^0.8.4;\n\n/**\n* @dev Contract mixin for 'owned' contracts.\n*/\ncontract Owned {\n    address public owner;\n    \n    modifier owner_only() {\n        require(msg.sender == owner);\n        _;\n    }\n\n    constructor() public {\n        owner = msg.sender;\n    }\n\n    function setOwner(address newOwner) public owner_only {\n        owner = newOwner;\n    }\n}"
+    }
+  ]
+}

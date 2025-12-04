@@ -1,0 +1,12 @@
+{
+  "Title": "[L-08] Use BytesLib.sol library to safely covert bytes to uint256",
+  "Content": "\nUse [toUint256()](https://github.com/GNSPS/solidity-bytes-utils/blob/master/contracts/BytesLib.sol) safely convert bytes to uint256 instead of plain way of conversion \n\n```solidity\nFILE: 2023-04-ens/contracts/dnssec-oracle/algorithms/P256SHA256Algorithm.sol\n\n34: return [uint256(data.readBytes32(0)), uint256(data.readBytes32(32))];\n41: return [uint256(data.readBytes32(4)), uint256(data.readBytes32(36))];\n\n```\n[P256SHA256Algorithm.sol#L34](https://github.com/code-423n4/2023-04-ens/blob/45ea10bacb2a398e14d711fe28d1738271cd7640/contracts/dnssec-oracle/algorithms/P256SHA256Algorithm.sol#L34)\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2023-04-ens",
+  "Code": [
+    {
+      "filename": "contracts/dnssec-oracle/algorithms/P256SHA256Algorithm.sol",
+      "content": "pragma solidity ^0.8.4;\n\nimport \"./Algorithm.sol\";\nimport \"./EllipticCurve.sol\";\nimport \"../BytesUtils.sol\";\n\ncontract P256SHA256Algorithm is Algorithm, EllipticCurve {\n    using BytesUtils for *;\n\n    /**\n     * @dev Verifies a signature.\n     * @param key The public key to verify with.\n     * @param data The signed data to verify.\n     * @param signature The signature to verify.\n     * @return True iff the signature is valid.\n     */\n    function verify(\n        bytes calldata key,\n        bytes calldata data,\n        bytes calldata signature\n    ) external view override returns (bool) {\n        return\n            validateSignature(\n                sha256(data),\n                parseSignature(signature),\n                parseKey(key)\n            );\n    }\n\n    function parseSignature(\n        bytes memory data\n    ) internal pure returns (uint256[2] memory) {\n        require(data.length == 64, \"Invalid p256 signature length\");\n        return [uint256(data.readBytes32(0)), uint256(data.readBytes32(32))];\n    }\n\n    function parseKey(\n        bytes memory data\n    ) internal pure returns (uint256[2] memory) {\n        require(data.length == 68, \"Invalid p256 key length\");\n        return [uint256(data.readBytes32(4)), uint256(data.readBytes32(36))];\n    }\n}"
+    }
+  ]
+}

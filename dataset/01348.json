@@ -1,0 +1,12 @@
+{
+  "Title": "`LibUniswapOracle::PERIOD` comment should be resolved",
+  "Content": "There is a [comment](https://github.com/BeanstalkFarms/Beanstalk/blob/c7a20e56a0a6659c09314a877b440198eff0cd81/protocol/contracts/libraries/Oracle/LibUniswapOracle.sol#L21) in `LibUniswapOracle` that suggests the [`PERIOD`](https://github.com/BeanstalkFarms/Beanstalk/blob/c7a20e56a0a6659c09314a877b440198eff0cd81/protocol/contracts/libraries/Oracle/LibUniswapOracle.sol#L22) constant may be incorrect. It is understood that this value is actually already correct, so the todo comment should be resolved and all references to a 30-minute lookback period in the Beanstalk whitepaper should be updated.",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "protocol/contracts/libraries/Oracle/LibUniswapOracle.sol",
+      "content": "/**\n * SPDX-License-Identifier: MIT\n **/\n\npragma solidity =0.7.6;\npragma experimental ABIEncoderV2;\n\nimport {C} from \"contracts/C.sol\";\nimport {OracleLibrary} from \"@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol\";\n\n/**\n * @title Uniswap Oracle Library\n * @notice Contains functionalty to read prices from Uniswap V3 pools.\n * @dev currently supports:\n * - ETH:USDC price from the ETH:USDC 0.3% pool\n * - ETH:USDT price from the ETH:USDT 0.3% pool\n **/\nlibrary LibUniswapOracle {\n\n    // The lookback in seconds for which to calculate the SMA in a Uniswap V3 pool.\n    // TODO: Finalize. Currently set to 15 minutes\n    uint32 constant PERIOD = 900;\n\n    uint128 constant ONE_WETH = 1e18;\n\n    /**\n     * @dev Uses the Uniswap V3 Oracle to get the price of ETH denominated in USDC.\n     * Return value has 6 decimal precision.\n     */\n    function getEthUsdcPrice() internal view returns (uint256 price) {\n        (int24 tick, ) = OracleLibrary.consult(C.UNIV3_ETH_USDC_POOL, PERIOD);\n        price = OracleLibrary.getQuoteAtTick(tick, ONE_WETH, C.WETH, C.USDC);\n    }\n\n    /**\n     * @dev Uses the Uniswap V3 Oracle to get the price of ETH denominated in USDT.\n     * Return value has 6 decimal precision.\n     */\n    function getEthUsdtPrice() internal view returns (uint256 price) {\n        (int24 tick, ) = OracleLibrary.consult(C.UNIV3_ETH_USDT_POOL, PERIOD);\n        price = OracleLibrary.getQuoteAtTick(tick, ONE_WETH, C.WETH, C.USDT);\n    }\n}"
+    }
+  ]
+}

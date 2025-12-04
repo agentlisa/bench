@@ -1,0 +1,12 @@
+{
+  "Title": "Function Is Updating the State Without an Event Emission",
+  "Content": "The `ScrollBridgeReceiver` contract sets the `l2Messenger` variable [during construction](https://github.com/compound-finance/comet/blob/149284098ee0c59654d09b005ce8cae6f6cc9bf0/contracts/bridges/scroll/ScrollBridgeReceiver.sol#L15). However, it does so without firing the relevant event for such an update.\n\n\nConsider emitting the `NewL2Messenger` event during `ScrollBridgeReceiver` construction.\n\n\n***Update:** Resolved in [pull request #822](https://github.com/compound-finance/comet/pull/822).*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/bridges/scroll/ScrollBridgeReceiver.sol",
+      "content": "// SPDX-License-Identifier: BUSL-1.1\npragma solidity 0.8.15;\n\nimport \"../SweepableBridgeReceiver.sol\";\nimport \"./IScrollMessenger.sol\";\n\ncontract ScrollBridgeReceiver is SweepableBridgeReceiver {\n    error InvalidL2Messenger();\n\n    event Newl2Messenger(address indexed oldL2Messenger, address indexed newL2Messenger);\n\n    address public l2Messenger;\n\n    constructor(address l2Messenger_) {\n        l2Messenger = l2Messenger_;\n    }\n\n    function changel2Messenger(address newL2Messenger) public {\n        if (msg.sender != localTimelock) revert Unauthorized();\n        address oldL2Messenger = l2Messenger;\n        l2Messenger = newL2Messenger;\n        emit Newl2Messenger(oldL2Messenger, newL2Messenger);\n    }\n\n    fallback() external payable {\n        if (msg.sender != l2Messenger) revert InvalidL2Messenger();\n        address messageSender = IScrollMessenger(msg.sender).xDomainMessageSender();\n        processMessage(messageSender, msg.data);\n    }\n}"
+    }
+  ]
+}

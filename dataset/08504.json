@@ -1,0 +1,12 @@
+{
+  "Title": "[N‑08] File is missing version pragma",
+  "Content": "\n*There is 1 instance of this issue:*\n\n```solidity\nFile: contracts/ethregistrar/IBaseRegistrar.sol\n\n0:    import \"../registry/ENS.sol\";\n\n```\n\n<https://github.com/code-423n4/2022-07-ens/blob/ff6e59b9415d0ead7daf31c2ed06e86d9061ae22/contracts/ethregistrar/IBaseRegistrar.sol#L0>\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-07-ens",
+  "Code": [
+    {
+      "filename": "contracts/ethregistrar/IBaseRegistrar.sol",
+      "content": "import \"../registry/ENS.sol\";\nimport \"./IBaseRegistrar.sol\";\nimport \"@openzeppelin/contracts/token/ERC721/IERC721.sol\";\n\ninterface IBaseRegistrar is IERC721 {\n\n    event ControllerAdded(address indexed controller);\n    event ControllerRemoved(address indexed controller);\n    event NameMigrated(\n        uint256 indexed id,\n        address indexed owner,\n        uint256 expires\n    );\n    event NameRegistered(\n        uint256 indexed id,\n        address indexed owner,\n        uint256 expires\n    );\n    event NameRenewed(uint256 indexed id, uint256 expires);\n    // Authorises a controller, who can register and renew domains.\n    function addController(address controller) external;\n\n    // Revoke controller permission for an address.\n    function removeController(address controller) external;\n\n    // Set the resolver for the TLD this registrar manages.\n    function setResolver(address resolver) external;\n\n    // Returns the expiration timestamp of the specified label hash.\n    function nameExpires(uint256 id) external view returns (uint256);\n\n    // Returns true iff the specified name is available for registration.\n    function available(uint256 id) external view returns (bool);\n\n    /**\n     * @dev Register a name.\n     */\n    function register(\n        uint256 id,\n        address owner,\n        uint256 duration\n    ) external returns (uint256);\n\n    function renew(uint256 id, uint256 duration) external returns (uint256);\n\n    /**\n     * @dev Reclaim ownership of a name in ENS, if you own it in the registrar.\n     */\n    function reclaim(uint256 id, address owner) external;\n}"
+    }
+  ]
+}

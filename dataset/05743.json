@@ -1,0 +1,12 @@
+{
+  "Title": "[G-17] Division by powers of two should use bit shifting in `Merkle.sol`",
+  "Content": "\nWhile the bot report reported every division by powers of two in a form: `A / 2`, it misses an instance, which looks like: `A /= 2`.\n\n[File: ethereum/contracts/zksync/libraries/Merkle.sol](https://github.com/code-423n4/2023-10-zksync/blob/1fb4649b612fac7b4ee613df6f6b7d921ddd6b0d/code/contracts/ethereum/contracts/zksync/libraries/Merkle.sol#L33)\n\n```\n_index /= 2;\n```\n\nIt should be changed to: `_index = _index >> 1;`.\n\n",
+  "Impact": "GAS",
+  "Source": "https://code4rena.com/reports/2023-10-zksync",
+  "Code": [
+    {
+      "filename": "code/contracts/ethereum/contracts/zksync/libraries/Merkle.sol",
+      "content": "// SPDX-License-Identifier: MIT\n\npragma solidity ^0.8.13;\n\nimport \"../../common/libraries/UncheckedMath.sol\";\n\n/// @author Matter Labs\n/// @custom:security-contact security@matterlabs.dev\nlibrary Merkle {\n    using UncheckedMath for uint256;\n\n    /// @dev Calculate Merkle root by the provided Merkle proof.\n    /// NOTE: When using this function, check that the _path length is equal to the tree height to prevent shorter/longer paths attack\n    /// @param _path Merkle path from the leaf to the root\n    /// @param _index Leaf index in the tree\n    /// @param _itemHash Hash of leaf content\n    /// @return The Merkle root\n    function calculateRoot(\n        bytes32[] calldata _path,\n        uint256 _index,\n        bytes32 _itemHash\n    ) internal pure returns (bytes32) {\n        uint256 pathLength = _path.length;\n        require(pathLength > 0, \"xc\");\n        require(pathLength < 256, \"bt\");\n        require(_index < (1 << pathLength), \"px\");\n\n        bytes32 currentHash = _itemHash;\n        for (uint256 i; i < pathLength; i = i.uncheckedInc()) {\n            currentHash = (_index % 2 == 0)\n                ? _efficientHash(currentHash, _path[i])\n                : _efficientHash(_path[i], currentHash);\n            _index /= 2;\n        }\n\n        return currentHash;\n    }\n\n    /// @dev Keccak hash of the concatenation of two 32-byte words\n    function _efficientHash(bytes32 _lhs, bytes32 _rhs) private pure returns (bytes32 result) {\n        assembly {\n            mstore(0x00, _lhs)\n            mstore(0x20, _rhs)\n            result := keccak256(0x00, 0x40)\n        }\n    }\n}"
+    }
+  ]
+}

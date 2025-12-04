@@ -1,0 +1,12 @@
+{
+  "Title": "[L-01] Wrong function declaration in IBaseRewardPool interface",
+  "Content": "\nThe `withdraw` function declaration is missing the `bool` return value.\n\nhttps://github.com/code-423n4/2023-05-xeth/blob/main/src/interfaces/IBaseRewardPool.sol#L14\n\n```solidity\nfunction withdraw(uint256 amount, bool claim) external;\n```\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2023-05-xeth",
+  "Code": [
+    {
+      "filename": "src/interfaces/IBaseRewardPool.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity 0.8.19;\n\ninterface IBaseRewardPool {\n    function withdrawAndUnwrap(\n        uint256 amount,\n        bool claim\n    ) external returns (bool);\n\n    function withdrawAll(bool claim) external;\n\n    function withdrawAllAndUnwrap(bool claim) external;\n\n    function withdraw(uint256 amount, bool claim) external;\n\n    function stakeFor(address _for, uint256 _amount) external returns (bool);\n\n    function stakeAll() external returns (bool);\n\n    function stake(uint256 _amount) external returns (bool);\n\n    function earned(address account) external view returns (uint256);\n\n    function getReward(\n        address _account,\n        bool _claimExtras\n    ) external returns (bool);\n\n    function getReward() external returns (bool);\n\n    function balanceOf(address account) external view returns (uint256);\n\n    function rewardToken() external view returns (address);\n}"
+    }
+  ]
+}

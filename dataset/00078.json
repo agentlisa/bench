@@ -1,0 +1,12 @@
+{
+  "Title": "Enum Elements Sorting Is Not Consistent",
+  "Content": "The `LTVType.sol` file defines the [`LTVType` enum](https://github.com/euler-xyz/euler-vault-kit/blob/83ea1ad97b7c561d6601b220d23ec85d67ceb297/src/EVault/shared/types/LTVType.sol#L5). However, the `LTVConfig.sol` file does also define the same [`LTVType` enum](https://github.com/euler-xyz/euler-vault-kit/blob/83ea1ad97b7c561d6601b220d23ec85d67ceb297/src/EVault/shared/types/LTVConfig.sol#L9) with the caveat that the order of the elements is inverted. Even though the first file is not used by the protocol, a third-party project might use it as an import, in which case the enum would return the wrong index when queried for the LTV type.\n\n\nIn order to mitigate such integration issues, consider either removing the duplicated file or switching the order of the elements inside the enum to be consistent in all places.\n\n\n***Update:** Resolved in [pull request #138](https://github.com/euler-xyz/euler-vault-kit/pull/138).*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "src/EVault/shared/types/LTVType.sol",
+      "content": "// SPDX-License-Identifier: GPL-2.0-or-later\n\npragma solidity ^0.8.0;\n\nenum LTVType {\n    LIQUIDATION,\n    BORROWING\n}"
+    }
+  ]
+}

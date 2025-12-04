@@ -1,0 +1,12 @@
+{
+  "Title": "[G-16] Reduce gas usage by moving to Solidity 0.8.19 or later",
+  "Content": "\nSee [this](https://soliditylang.org/blog/2023/02/22/solidity-0.8.19-release-announcement/#preventing-dead-code-in-runtime-bytecode) link for the full details. Additionally, every new release has new optimizations, which will save gas.\n\n1 issue instance in 1 file:\n\n```solidity\nFile: pt-v5-vault/src/abstract/HookManager.sol\n2: pragma solidity ^0.8.0;\n```\n\n[2](https://github.com/code-423n4/2024-03-pooltogether/blob/main/pt-v5-vault/src/abstract/HookManager.sol#L2)\n\n",
+  "Impact": "GAS",
+  "Source": "https://code4rena.com/reports/2024-03-pooltogether",
+  "Code": [
+    {
+      "filename": "pt-v5-vault/src/abstract/HookManager.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\nimport { VaultHooks } from \"../interfaces/IVaultHooks.sol\";\n\n/// @title  PoolTogether V5 HookManager\n/// @author G9 Software Inc.\n/// @notice Allows each account to set and manage prize hooks that can be called when they win.\nabstract contract HookManager {\n\n    /// @notice Emitted when an account sets new hooks\n    /// @param account The account whose hooks are being configured\n    /// @param hooks The hooks being set\n    event SetHooks(address indexed account, VaultHooks hooks);\n\n    /// @notice Maps user addresses to hooks that they want to execute when prizes are won.\n    mapping(address => VaultHooks) internal _hooks;\n\n    /// @notice Gets the hooks for the given account.\n    /// @param account The account to retrieve the hooks for\n    /// @return VaultHooks The hooks for the given account\n    function getHooks(address account) external view returns (VaultHooks memory) {\n        return _hooks[account];\n    }\n\n    /// @notice Sets the hooks for a winner.\n    /// @dev Emits a `SetHooks` event\n    /// @param hooks The hooks to set\n    function setHooks(VaultHooks calldata hooks) external {\n        _hooks[msg.sender] = hooks;\n        emit SetHooks(msg.sender, hooks);\n    }\n    \n}"
+    }
+  ]
+}

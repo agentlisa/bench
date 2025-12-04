@@ -1,0 +1,12 @@
+{
+  "Title": "[L06] LegacyReputationToken’s decimals public getter does not return uint8",
+  "Content": "The [ERC20](https://eips.ethereum.org/EIPS/eip-20#decimals) specification specifies an optional getter for the token’s `decimals`, which must return a `uint8` type. While the [`LegacyReputationToken`](https://github.com/AugurProject/augur/blob/9a33c3269e812d0cb66d49b61a72db58e32e4749/packages/augur-core/source/contracts/LegacyReputationToken.sol#L12) [does implement this getter](https://github.com/AugurProject/augur/blob/9a33c3269e812d0cb66d49b61a72db58e32e4749/packages/augur-core/source/contracts/LegacyReputationToken.sol#L12), it returns a `uint256` instead. Consider changing it to `uint8` to be fully ERC20 compliant. If `uint256` was used intentionally to match the currently deployed REP token implementation, consider thoroughly documenting that reasoning.\n\n\n***Update****: fixed in* [*`43a8d57`*](https://github.com/AugurProject/augur/commit/43a8d5736cb68c86f187c47b210e81490391cffa) *. Now the* *`decimals`* *public getter returns a* *`uint8`* *type.*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "packages/augur-core/source/contracts/LegacyReputationToken.sol",
+      "content": "pragma solidity 0.5.4;\n\nimport 'ROOT/libraries/IERC820Registry.sol';\nimport 'ROOT/legacy_reputation/OldLegacyRepToken.sol';\n\n\ncontract LegacyReputationToken is OldLegacyReputationToken {\n    event FundedAccount(address indexed _universe, address indexed _sender, uint256 _repBalance, uint256 _timestamp);\n\n    string public constant name = \"Reputation\";\n    string public constant symbol = \"REP\";\n    uint256 public constant decimals = 18;\n\n    function initializeERC820(IAugur _augur) public returns (bool) {\n        erc820Registry = IERC820Registry(_augur.lookup(\"ERC820Registry\"));\n        initialize820InterfaceImplementations();\n        return true;\n    }\n\n    function faucet(uint256 _amount) public returns (bool) {\n        require(_amount < 2 ** 128);\n        mint(msg.sender, _amount);\n        emit FundedAccount(address(this), msg.sender, _amount, block.timestamp);\n        return true;\n    }\n\n    function onMint(address, uint256) internal returns (bool) {\n        return true;\n    }\n\n    function onBurn(address, uint256) internal returns (bool) {\n        return true;\n    }\n\n    function onTokenTransfer(address, address, uint256) internal returns (bool) {\n        return true;\n    }\n}"
+    }
+  ]
+}

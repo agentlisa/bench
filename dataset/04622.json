@@ -1,0 +1,12 @@
+{
+  "Title": "Burning tokens before crowdsale ends affects total token supply",
+  "Content": "MANA tokens can be burned invoking the `burn` function in `BurnableToken` [line 17](https://github.com/decentraland/mana/blob/a13905356378cc0153dd3c2153c8ceae6400970d/contracts/BurnableToken.sol#L17), which reduces the token’s `totalSupply`. This reduces the number of tokens calculated as `finalSupply` in [line 126](https://github.com/decentraland/mana/blob/a13905356378cc0153dd3c2153c8ceae6400970d/contracts/MANACrowdsale.sol#L126) of `MANACrowdsale`, thus reducing the number of tokens emitted for the Decentraland Foundation, which are calculated as 60% of the `finalSupply` in [line 129](https://github.com/decentraland/mana/blob/a13905356378cc0153dd3c2153c8ceae6400970d/contracts/MANACrowdsale.sol#L129) of the same file. Consider preventing tokens from being burnt by adding a `burnable` flag in `BurnableToken`, disabled initially and only enabled once `MANACrowdsale` finalizes.\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/BurnableToken.sol",
+      "content": "pragma solidity ^0.4.11;\n\nimport 'zeppelin-solidity/contracts/token/StandardToken.sol';\n\n/**\n * @title Burnable Token\n * @dev A token that can be irreversibly burned.\n */\ncontract BurnableToken is StandardToken {\n\n    event Burn(address indexed burner, uint256 value);\n\n    /**\n     * @dev Burns a specified amount of tokens.\n     * @param _value The amount of tokens to burn. \n     */\n    function burn(uint256 _value) {\n        address burner = msg.sender;\n        balances[burner] = balances[burner].sub(_value);\n        totalSupply = totalSupply.sub(_value);\n        Burn(msg.sender, _value);\n    }\n\n}"
+    }
+  ]
+}

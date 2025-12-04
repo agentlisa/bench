@@ -1,0 +1,12 @@
+{
+  "Title": "[N-11] Consider using a two-step-transfer of ownership",
+  "Content": "\nThe current owner would nominate a new owner, and to become the new owner, the nominated account would have to approve the change, so that the address is proven to be valid\n\n1.  File: src/Ownable.sol (line [20](https://github.com/code-423n4/2022-04-axelar/blob/dee2f2d352e8f20f20027977d511b19bfcca23a3/src/Ownable.sol#L20))\n\n```solidity\n    function transferOwnership(address newOwner) public virtual onlyOwner {\n```\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-04-axelar",
+  "Code": [
+    {
+      "filename": "src/Ownable.sol",
+      "content": "// SPDX-License-Identifier: MIT\n\npragma solidity 0.8.9;\n\nabstract contract Ownable {\n    address public owner;\n\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\n\n    constructor() {\n        owner = msg.sender;\n        emit OwnershipTransferred(address(0), msg.sender);\n    }\n\n    modifier onlyOwner() {\n        require(owner == msg.sender, 'NOT_OWNER');\n        _;\n    }\n\n    function transferOwnership(address newOwner) public virtual onlyOwner {\n        require(newOwner != address(0), 'ZERO_ADDR');\n\n        emit OwnershipTransferred(owner, newOwner);\n        owner = newOwner;\n    }\n}"
+    }
+  ]
+}

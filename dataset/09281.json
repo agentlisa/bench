@@ -1,0 +1,12 @@
+{
+  "Title": "[M-02] Chainlink pricer is using a deprecated API",
+  "Content": "\nAccording to Chainlink's documentation, the latestAnswer function is deprecated. This function might suddenly stop working if Chainlink stop supporting deprecated APIs. And the old API can return stale data.\n\n### Proof of Concept\n\n[PriceOracleImplementation.sol#L29-L30](https://github.com/bunkerfinance/bunker-protocol/blob/752126094691e7457d08fc62a6a5006df59bd2fe/contracts/PriceOracleImplementation.sol#L29-L30)<br>\n\n### Recommended Mitigation Steps\n\nUse the latestRoundData function to get the price instead. Add checks on the return data with proper revert messages if the price is stale or the round is uncomplete\n<https://docs.chain.link/docs/price-feeds-api-reference/>\n\n**[bunkerfinance-dev (bunker.finance) confirmed](https://github.com/code-423n4/2022-05-bunker-findings/issues/1)**\n\n\n\n***\n\n",
+  "Impact": "MEDIUM",
+  "Source": "https://code4rena.com/contests/2022-05-bunkerfinance-contest",
+  "Code": [
+    {
+      "filename": "contracts/PriceOracleImplementation.sol",
+      "content": "pragma solidity ^0.5.16;\n\nimport \"./PriceOracle.sol\";\n\ninterface ChainlinkFeed {\n    function latestAnswer() external view returns (int256);\n}\n\ncontract PriceOracleImplementation is PriceOracle {\n    address public cEtherAddress;\n\n    constructor(address _cEtherAddress) public {\n        cEtherAddress = _cEtherAddress;\n    }\n\n    /**\n      * @notice Get the underlying price of a cToken asset\n      * @param cToken The cToken to get the underlying price of\n      * @return The underlying asset price mantissa (scaled by 1e18).\n      *  Zero means the price is unavailable.\n      */\n    function getUnderlyingPrice(CToken cToken) external view returns (uint) {\n        if (address(cToken) == cEtherAddress) {\n            // ether always worth 1\n            return 1e18;\n        }\n\n        // For now, we only have USDC and ETH.\n        int256 usdcPrice = ChainlinkFeed(0x986b5E1e1755e3C2440e960477f25201B0a8bbD4).latestAnswer();\n        if (usdcPrice <= 0) {\n            return 0;\n        }\n\n        // Checck for overflow.\n        uint256 result = uint256(usdcPrice) * 1e12;\n        if (result / uint256(usdcPrice) != 1e12) {\n            return 0;\n        }\n\n        return result;\n    }\n}"
+    }
+  ]
+}

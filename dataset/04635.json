@@ -1,0 +1,12 @@
+{
+  "Title": "Key escrow service for critical accounts",
+  "Content": "The **tokenIssuer** address state variable in [line 49 of StandardToken](https://github.com/BCAPtoken/BCAPToken/blob/004c49da7d4f58309c1fc0018dae8260ea03d8f2/sol/StandardToken.sol#L49) has full control of the token supply. Furthermore, it’s the same address that can freeze and unfreeze transactions in [BCAPToken](https://github.com/BCAPtoken/BCAPToken/blob/5cb5e76338cc47343ba9268663a915337c8b268e/sol/BCAPToken.sol#L89). The corresponding private key should have really high security standards. Consider using a multisig wallet for that address, and [a key escrow service](https://smartcontractsolutions.com/escrow) to further protect it.\n\n\n",
+  "Impact": "MEDIUM",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "sol/StandardToken.sol",
+      "content": "/*\r\n * Standard Token Smart Contract.  Copyright © 2016 by ABDK Consulting.\r\n */\r\npragma solidity ^0.4.1;\r\n\r\nimport \"./AbstractToken.sol\";\r\n\r\n/**\r\n * Standard Token Smart Contract that implements ERC-20 token with special\r\n * unlimited supply \"token issuer\" account.\r\n */\r\ncontract StandardToken is AbstractToken {\r\n  uint256 constant private MAX_UINT256 =\r\n    0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;\r\n\r\n  /**\r\n   * Create new Standard Token contract with given \"token issuer\" account.\r\n   *\r\n   * @param _tokenIssuer address of \"token issuer\" account\r\n   */\r\n  function StandardToken (address _tokenIssuer) AbstractToken () {\r\n    tokenIssuer = _tokenIssuer;\r\n    accounts [_tokenIssuer] = MAX_UINT256;\r\n  }\r\n\r\n  /**\r\n   * Get total number of tokens in circulation.\r\n   *\r\n   * @return total number of tokens in circulation\r\n   */\r\n  function totalSupply () constant returns (uint256 supply) {\r\n    return safeSub (MAX_UINT256, accounts [tokenIssuer]);\r\n  }\r\n\r\n  /**\r\n   * Get number of tokens currently belonging to given owner.\r\n   *\r\n   * @param _owner address to get number of tokens currently belonging to the\r\n            owner of\r\n   * @return number of tokens currently belonging to the owner of given address\r\n   */\r\n  function balanceOf (address _owner) constant returns (uint256 balance) {\r\n    return _owner == tokenIssuer ? 0 : AbstractToken.balanceOf (_owner);\r\n  }\r\n\r\n  /**\r\n   * Address of \"token issuer\" account.\r\n   */\r\n  address private tokenIssuer;\r\n}"
+    }
+  ]
+}

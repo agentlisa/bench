@@ -1,0 +1,12 @@
+{
+  "Title": "[N-04] Use bit shifts in an imutable variable rather than long bit masks of a single bit, for readability",
+  "Content": "\n1.  File: contracts/libraries/FixedPoint112.sol (line [10](https://github.com/code-423n4/2022-04-phuture/blob/594459d0865fb6603ba388b53f3f01648f5bb6fb/contracts/libraries/FixedPoint112.sol#L10))\n\n```solidity\n    uint256 internal constant Q112 = 0x10000000000000000000000000000;\n```\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-04-phuture",
+  "Code": [
+    {
+      "filename": "contracts/libraries/FixedPoint112.sol",
+      "content": "// SPDX-License-Identifier: GPL-2.0-or-later\n\npragma solidity >=0.8.7;\n\n/// @title FixedPoint112\n/// @notice A library for handling binary fixed point numbers, see https://en.wikipedia.org/wiki/Q_(number_format)\nlibrary FixedPoint112 {\n    uint8 internal constant RESOLUTION = 112;\n    /// @dev 2**112\n    uint256 internal constant Q112 = 0x10000000000000000000000000000;\n}"
+    }
+  ]
+}

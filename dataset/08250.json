@@ -1,0 +1,12 @@
+{
+  "Title": "[3] contracts/mixins/shared/ContractFactory.sol",
+  "Content": "\nOn line [31](https://github.com/code-423n4/2022-08-foundation/blob/792e00df42/contracts/mixins/shared/ContractFactory.sol#L31), there is a check for `_contractFactory` to see if it already has a code. I guess this is an extra check that can be removed. Since if `_contractFactory` calls the constructor here in its own constructor by then `_contractFactory.isContract() = _contractFactory.code.length == 0`. Also, it is possible that a wrong contract address is passed here, so the check would not really do anything. This will only check against accidental EOA addresses used for `_contractFactory`. So we could possibly remove the following lines:\n\n```solidity\n 5\timport \"@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol\";\n13 \tusing AddressUpgradeable for address;\n31\trequire(_contractFactory.isContract(), \"ContractFactory: Factory is not a contract\");\n```\n\nIf there is a stricter condition for the allowed `contractFactory` addresses, maybe we could use that instead. One possible idea is an array of implementation contract code hashes that we could check. Or maybe contracts that have a function similar to `supportsInterface` that returns a magic number which we could check here.\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-08-foundation",
+  "Code": [
+    {
+      "filename": "contracts/mixins/shared/ContractFactory.sol",
+      "content": "// SPDX-License-Identifier: MIT OR Apache-2.0\n\npragma solidity ^0.8.12;\n\nimport \"@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol\";\n\nimport \"../../interfaces/ICollectionFactory.sol\";\n\n/**\n * @title Stores a reference to the factory which is used to create contract proxies.\n */\nabstract contract ContractFactory {\n  using AddressUpgradeable for address;\n\n  /**\n   * @notice The address of the factory which was used to create this contract.\n   * @return The factory contract address.\n   */\n  address public immutable contractFactory;\n\n  modifier onlyContractFactory() {\n    require(msg.sender == contractFactory, \"ContractFactory: Caller is not the factory\");\n    _;\n  }\n\n  /**\n   * @notice Initialize the template's immutable variables.\n   * @param _contractFactory The factory which will be used to create these contracts.\n   */\n  constructor(address _contractFactory) {\n    require(_contractFactory.isContract(), \"ContractFactory: Factory is not a contract\");\n    contractFactory = _contractFactory;\n  }\n}"
+    }
+  ]
+}

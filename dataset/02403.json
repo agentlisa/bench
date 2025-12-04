@@ -1,0 +1,16 @@
+{
+  "Title": "Potential hash collisions for constants",
+  "Content": "##### Description\n[The constants for the access roles `OWNER_ROLE` and `EXECUTOR_ROLE`](https://github.com/EnsoFinance/shortcuts-contracts/blob/4902e55608f975f73772310955444110b1cfc4fc/contracts/access/Roles.sol#L5)\nare vulnerable to potential hash collisions.\n##### Recommendation\nAlthough, we currently can't find any attack vector for this issue, we recommend improving the security of the constants by decreasing it by `-1` just like it is [implemented here](https://github.com/EnsoFinance/shortcuts-contracts/blob/4902e55608f975f73772310955444110b1cfc4fc/contracts/access/Ownable.sol#L11).\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/access/Roles.sol",
+      "content": "//SPDX-License-Identifier: Unlicense\npragma solidity ^0.8.16;\n\nabstract contract Roles {\n    bytes32 public constant OWNER_ROLE = keccak256(\"enso.access.roles.owner\");\n    bytes32 public constant EXECUTOR_ROLE = keccak256(\"enso.access.roles.executor\");\n}"
+    },
+    {
+      "filename": "contracts/access/Ownable.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.16;\n\nimport \"../libraries/StorageAPI.sol\";\n\n// @notice The OWNER slot must be set in the importing contract's constructor or initialize function\nabstract contract Ownable {\n    using StorageAPI for bytes32;\n\n    // Using same slot generation technique as eip-1967 -- https://eips.ethereum.org/EIPS/eip-1967\n    bytes32 internal constant OWNER = bytes32(uint256(keccak256(\"enso.access.owner\")) - 1);\n    bytes32 internal constant PENDING_OWNER = bytes32(uint256(keccak256(\"enso.access.pendingOwner\")) - 1);\n\n    event OwnershipTransferred(address previousOwner, address newOwner);\n    event OwnershipTransferStarted(address previousOwner, address newOwner);\n\n    error NotOwner();\n    error NotPermitted();\n    error InvalidAccount();\n\n    modifier onlyOwner {\n        if (msg.sender != OWNER.getAddress()) revert NotOwner();\n        _;\n    }\n\n    function transferOwnership(address newOwner) external onlyOwner {\n        if (newOwner == address(0)) revert InvalidAccount();\n        address currentOwner = OWNER.getAddress();\n        if (newOwner == currentOwner) revert InvalidAccount();\n        PENDING_OWNER.setAddress(newOwner);\n        emit OwnershipTransferStarted(currentOwner, newOwner);\n    }\n\n    function acceptOwnership() external {\n        if (msg.sender != PENDING_OWNER.getAddress()) revert NotPermitted();\n        PENDING_OWNER.setAddress(address(0));\n        address previousOwner = OWNER.getAddress();\n        OWNER.setAddress(msg.sender);\n        emit OwnershipTransferred(previousOwner, msg.sender);\n    }\n\n    function owner() external view returns (address) {\n        return OWNER.getAddress();\n    }\n}"
+    }
+  ]
+}

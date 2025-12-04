@@ -1,0 +1,12 @@
+{
+  "Title": "Whitelisted investors can make purchases with zero value",
+  "Content": "The `validPurchase` check of [line 30](https://github.com/decentraland/mana/blob/a13905356378cc0153dd3c2153c8ceae6400970d/contracts/WhitelistedCrowdsale.sol#L30) in `WhitelistedCrowdsale` does not check for `msg.value` being greater than zero if the purchase belongs to a whitelisted investor. Note that the base OpenZeppelin `Crowdsale` contract in[line 98](https://github.com/OpenZeppelin/zeppelin-solidity/blob/v1.1.0/contracts/crowdsale/Crowdsale.sol#L98) does check that `msg.value != 0` as part of the `validPurchase` method. Consider adding the check by changing [line 30](https://github.com/decentraland/mana/blob/a13905356378cc0153dd3c2153c8ceae6400970d/contracts/WhitelistedCrowdsale.sol#L30) of `WhitelistedCrowdsale` to `super.validPurchase() || (!hasEnded() &amp;&amp; isWhitelisted(msg.sender) &amp;&amp; msg.value != 0)`.\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/WhitelistedCrowdsale.sol",
+      "content": "pragma solidity ^0.4.11;\n\nimport 'zeppelin-solidity/contracts/math/SafeMath.sol';\nimport 'zeppelin-solidity/contracts/crowdsale/Crowdsale.sol';\n\n/**\n * @title WhitelistedCrowdsale\n * @dev Extension of Crowsdale where an owner can whitelist addresses\n * which can invest in crowdsale before it opens to the public \n */\ncontract WhitelistedCrowdsale is Crowdsale, Ownable {\n    using SafeMath for uint256;\n\n    // list of addresses that can purchase before crowdsale opens\n    mapping (address => bool) public whitelist;\n\n    function addToWhitelist(address investor) public onlyOwner {\n        whitelist[investor] = true; \n    }\n\n    // @return true if investor is whitelisted\n    function isWhitelisted(address investor) public constant returns (bool) {\n        return whitelist[investor];\n    }\n\n    // overriding Crowdsale#validPurchase to add whitelist logic\n    // @return true if investors can buy at the moment\n    function validPurchase() internal constant returns (bool) {\n        // [TODO] issue with overriding and associativity of logical operators\n        return super.validPurchase() || (!hasEnded() && isWhitelisted(msg.sender)); \n    }\n\n}"
+    }
+  ]
+}

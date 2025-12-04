@@ -1,0 +1,12 @@
+{
+  "Title": "Lack of Input Validation",
+  "Content": "The [`constructor`](https://github.com/MorpheusAIs/SmartContracts/blob/5e1222e8c31731cf230c2e3b709683b10a5c1b0e/contracts/MOROFT.sol#L11-L19) of the `MOROFT` contract does not verify if the values for the `_delegate` and `_minter` input addresses are non-zero. While [the `_delegate` address is validated for zero address in the `OAppCore` contract](https://github.com/MorpheusAIs/SmartContracts/blob/5e1222e8c31731cf230c2e3b709683b10a5c1b0e/contracts/%40layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OAppCore.sol#L29), the `_minter` addresses are never validated.\n\n\nTo prevent initializing these addresses to zero, consider adding proper checks.\n\n\n***Update:** Resolved in [pull request #28](https://github.com/MorpheusAIs/SmartContracts/pull/28) at commit [8242004](https://github.com/MorpheusAIs/SmartContracts/pull/28/commits/8242004d59a86a3f55446b7985a4ffdafe33a922).*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/MOROFT.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport {OFT} from \"./@layerzerolabs/lz-evm-oapp-v2/contracts/oft/OFT.sol\";\n\nimport {IMOROFT, IERC20, IERC165, IOAppCore} from \"./interfaces/IMOROFT.sol\";\n\ncontract MOROFT is IMOROFT, OFT {\n    address private immutable minter_;\n\n    constructor(\n        address _layerZeroEndpoint,\n        address _delegate,\n        address _minter\n    ) OFT(\"MOR\", \"MOR\", _layerZeroEndpoint, _delegate) {\n        minter_ = _minter;\n\n        transferOwnership(_delegate);\n    }\n\n    function supportsInterface(bytes4 interfaceId_) external pure returns (bool) {\n        return\n            interfaceId_ == type(IMOROFT).interfaceId ||\n            interfaceId_ == type(IERC20).interfaceId ||\n            interfaceId_ == type(IOAppCore).interfaceId ||\n            interfaceId_ == type(IERC165).interfaceId;\n    }\n\n    function minter() public view returns (address) {\n        return minter_;\n    }\n\n    function mint(address _account, uint256 _amount) public {\n        require(_msgSender() == minter(), \"MOROFT: invalid caller\");\n\n        _mint(_account, _amount);\n    }\n\n    function burn(uint256 _amount) public virtual {\n        _burn(_msgSender(), _amount);\n    }\n\n    function burnFrom(address _account, uint256 _amount) public virtual {\n        _spendAllowance(_account, _msgSender(), _amount);\n        _burn(_account, _amount);\n    }\n}"
+    }
+  ]
+}

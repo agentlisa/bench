@@ -1,0 +1,12 @@
+{
+  "Title": "[11] Not Completely Using OpenZeppelin Contracts",
+  "Content": "\nOpenZeppelin maintains a library of standard, audited, community-reviewed, and battle-tested smart contracts. Instead of always importing these contracts, the protocol project re-implements them in some cases. This increases the amount of code that the protocol team will have to maintain and miss all the improvements and bug fixes that the OpenZeppelin team is constantly implementing with the help of the community.\n\nConsider importing the OpenZeppelin contracts instead of re-implementing or copying them. These contracts can be extended to add the extra functionalities required if need be.\n\nHere is one of the instances entailed:\n\nhttps://github.com/code-423n4/2022-11-looksrare/blob/main/contracts/ReentrancyGuard.sol#L6-L10\n\n```\n/**\n * @title ReentrancyGuard\n * @notice This contract protects against reentrancy attacks.\n *         It is adjusted from OpenZeppelin.\n */\n```\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-11-looksrare",
+  "Code": [
+    {
+      "filename": "contracts/ReentrancyGuard.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.14;\n\nimport {IReentrancyGuard} from \"./interfaces/IReentrancyGuard.sol\";\n\n/**\n * @title ReentrancyGuard\n * @notice This contract protects against reentrancy attacks.\n *         It is adjusted from OpenZeppelin.\n */\nabstract contract ReentrancyGuard is IReentrancyGuard {\n    uint256 private _status;\n\n    constructor() {\n        _status = 1;\n    }\n\n    /**\n     * @notice Modifier to wrap functions to prevent reentrancy calls\n     */\n    modifier nonReentrant() {\n        if (_status == 2) revert ReentrancyFail();\n\n        _status = 2;\n        _;\n        _status = 1;\n    }\n}"
+    }
+  ]
+}

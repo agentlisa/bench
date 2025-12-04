@@ -1,0 +1,12 @@
+{
+  "Title": "[G-19] Use a more recent version of solidity",
+  "Content": "\nUse a solidity version of at least 0.8.2 to get compiler automatic inlining\nUse a solidity version of at least 0.8.3 to get better struct packing and cheaper multiple storage reads\nUse a solidity version of at least 0.8.4 to get custom errors, which are cheaper at deployment than `revert()/require()` strings\nUse a solidity version of at least 0.8.10 to have external calls skip contract existence checks if the external call has a return value\n\n```solidity\nFile: contracts-full/interfaces/external/IProxyAdmin.sol   #1\n\n3   pragma solidity ^0.8.0;\n```\n\n<https://github.com/code-423n4/2022-05-alchemix/blob/71abbe683dfd5c0686b7e594fb4f78a14b668d8b/contracts-full/interfaces/external/IProxyAdmin.sol#L3>\n\n",
+  "Impact": "GAS",
+  "Source": "https://code4rena.com/contests/2022-05-alchemix-contest",
+  "Code": [
+    {
+      "filename": "contracts-full/interfaces/external/IProxyAdmin.sol",
+      "content": "// SPDX-License-Identifier: MIT\n\npragma solidity ^0.8.0;\n\ninterface IProxyAdmin {\n  function getProxyImplementation(address proxy) external view returns (address);\n\n  function getProxyAdmin(address proxy) external view returns (address);\n\n  function changeProxyAdmin(address proxy, address newAdmin) external;\n\n  function upgrade(address proxy, address implementation) external;\n\n  function upgradeAndCall(\n    address proxy,\n    address implementation,\n    bytes memory data\n  ) external;\n}"
+    }
+  ]
+}

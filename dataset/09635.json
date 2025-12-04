@@ -1,0 +1,12 @@
+{
+  "Title": "[G-16] State variables only set in the constructor should be declared `immutable`",
+  "Content": "\n1.  File: royalty-vault/contracts/ProxyVault.sol (line [9](https://github.com/code-423n4/2022-03-joyn/blob/c9297ccd925ebb2c44dbc6eaa3effd8db5d2368a/royalty-vault/contracts/ProxyVault.sol#L9))\n\n```solidity\n    address internal royaltyVault;\n```\n\n",
+  "Impact": "GAS",
+  "Source": "https://code4rena.com/contests/2022-03-joyn-contest",
+  "Code": [
+    {
+      "filename": "royalty-vault/contracts/ProxyVault.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.4;\n\nimport {VaultStorage} from \"./VaultStorage.sol\";\nimport {IVaultFactory} from \"../interfaces/IVaultFactory.sol\";\nimport {Ownable} from \"@openzeppelin/contracts/access/Ownable.sol\";\n\ncontract ProxyVault is VaultStorage, Ownable {\n    address internal royaltyVault;\n\n    /**\n     *  @dev This is the constructor of the ProxyVault contract.\n     *  It is called when the ProxyVault is created.\n     *  It sets the variable royaltyVault to the address of the RoyaltyVault contract.\n     */\n    constructor() {\n        royaltyVault = IVaultFactory(msg.sender).royaltyVault();\n        splitterProxy = IVaultFactory(msg.sender).splitterProxy();\n        royaltyAsset = IVaultFactory(msg.sender).royaltyAsset();\n        platformFee = IVaultFactory(msg.sender).platformFee();\n        platformFeeRecipient = IVaultFactory(msg.sender).platformFeeRecipient();\n    }\n\n    /**\n     *  @dev This function is called when the ProxyVault is called, it points to the RoyaltyVault contract.\n     */\n\n    fallback() external payable {\n        address _impl = royaltyVault;\n        assembly {\n            let ptr := mload(0x40)\n            calldatacopy(ptr, 0, calldatasize())\n            let result := delegatecall(gas(), _impl, ptr, calldatasize(), 0, 0)\n            let size := returndatasize()\n            returndatacopy(ptr, 0, size)\n\n            switch result\n            case 0 {\n                revert(ptr, size)\n            }\n            default {\n                return(ptr, size)\n            }\n        }\n    }\n\n    receive() external payable {}\n}"
+    }
+  ]
+}

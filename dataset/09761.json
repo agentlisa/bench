@@ -1,0 +1,12 @@
+{
+  "Title": "[N-04] `public` functions not called by the contract should be declared `external` instead",
+  "Content": "\nContracts [are allowed](https://docs.soliditylang.org/en/latest/contracts.html#function-overriding) to override their parents' functions and change the visibility from `external` to `public`.<br>\n\nFile: loan-3.0.0-beta.1/contracts/MapleLoanFactory.sol (lines [16-18](https://github.com/maple-labs/loan/blob/4c6fe2cd91d6d16b8434c426fe7eb6d2bc77bc30/contracts/MapleLoanFactory.sol#L16-L18))<br>\n\n```solidity\nfunction createInstance(bytes calldata arguments_, bytes32 salt_)\n    override(IMapleProxyFactory, MapleProxyFactory) public returns (\n        address instance_\n```\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-03-maple",
+  "Code": [
+    {
+      "filename": "contracts/MapleLoanFactory.sol",
+      "content": "// SPDX-License-Identifier: AGPL-3.0-or-later\npragma solidity 0.8.7;\n\nimport { IMapleProxyFactory, MapleProxyFactory } from \"../modules/maple-proxy-factory/contracts/MapleProxyFactory.sol\";\n\nimport { IMapleLoanFactory } from \"./interfaces/IMapleLoanFactory.sol\";\n\n/// @title MapleLoanFactory deploys Loan instances.\ncontract MapleLoanFactory is IMapleLoanFactory, MapleProxyFactory {\n\n    mapping(address => bool) public override isLoan;\n\n    /// @param mapleGlobals_ The address of a Maple Globals contract.\n    constructor(address mapleGlobals_) MapleProxyFactory(mapleGlobals_) {}\n\n    function createInstance(bytes calldata arguments_, bytes32 salt_)\n        override(IMapleProxyFactory, MapleProxyFactory) public returns (\n            address instance_\n        )\n    {\n        isLoan[instance_ = super.createInstance(arguments_, salt_)] = true;\n    }\n\n}"
+    }
+  ]
+}

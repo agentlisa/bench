@@ -1,0 +1,12 @@
+{
+  "Title": "Missing sanity check for address validity in `PorticoBase::unpadAddress`",
+  "Content": "**Description:** `PorticoBase::unpadAddress` is a re-implementation of [`Utils::fromWormholeFormat`](https://github.com/wormhole-foundation/wormhole-solidity-sdk/blob/main/src/Utils.sol#L10-L15) from the Wormhole Solidity SDK, but is missing a sanity check for address validity which is in the SDK implementation.\n\n**Recommended Mitigation:** Consider adding the address validity sanity check to `PorticoBase::unpadAddress`.\n\n**Wormhole:**\nFixed in commit 6208dd1.\n\n**Cyfrin:** Verified.",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "src/Utils.sol",
+      "content": "// SPDX-License-Identifier: Apache 2\npragma solidity ^0.8.13;\n\nimport \"./interfaces/IWormholeRelayer.sol\";\n\nfunction toWormholeFormat(address addr) pure returns (bytes32) {\n    return bytes32(uint256(uint160(addr)));\n}\n\nfunction fromWormholeFormat(bytes32 whFormatAddress) pure returns (address) {\n    if (uint256(whFormatAddress) >> 160 != 0) {\n        revert NotAnEvmAddress(whFormatAddress);\n    }\n    return address(uint160(uint256(whFormatAddress)));\n}"
+    }
+  ]
+}

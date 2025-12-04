@@ -1,0 +1,12 @@
+{
+  "Title": "[03] Technically the maximum amount at risk is `amountToDrip &ast; 2 - 1`",
+  "Content": "\nWhile the code is meant to limit the total asset at risk, it's important to notice that because of the following check:\n\n[MerkleRedeemerDripper.sol#L23-L24](https://github.com/code-423n4/2022-09-tribe/blob/769b0586b4975270b669d7d1581aa5672d6999d5/contracts/shutdown/fuse/MerkleRedeemerDripper.sol#L23-L24)\n\n```solidity\n            IERC20(token).balanceOf(target) < amountToDrip,\n\n```\n\nAny balance below `amountToDrip`, after enough time has passed, will alow to drip more, meaning the total amount at risk is not `amountToDrip` but up to `2 * amountToDrip - 1`.\n\n### Mitigation Steps\n\nI recommend commenting this.\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-09-tribe",
+  "Code": [
+    {
+      "filename": "contracts/shutdown/fuse/MerkleRedeemerDripper.sol",
+      "content": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity =0.8.10;\n\nimport {ERC20Dripper} from \"../../pcv/utils/ERC20Dripper.sol\";\nimport {IERC20} from \"@openzeppelin/contracts/token/ERC20/IERC20.sol\";\n\n/// @notice Drips ERC20 tokens to the RariMerkleRedeemer contract\n/// @author kryptoklob\ncontract MerkleRedeemerDripper is ERC20Dripper {\n    constructor(\n        address _core,\n        address _target,\n        uint256 _dripPeriod,\n        uint256 _amountToDrip,\n        address _token\n    ) ERC20Dripper(_core, _target, _dripPeriod, _amountToDrip, _token) {}\n\n    /// @notice Overrides drip() in the ERC20Dripper contract to add a balance check on the target\n    /// @dev This will revert if there are < amountToDrip tokens in this contract, so make sure\n    /// that it is funded with a multiple of amountToDrip to avoid this case.\n    function drip() public override {\n        require(\n            IERC20(token).balanceOf(target) < amountToDrip,\n            \"MerkleRedeemerDripper: dripper target already has enough tokens.\"\n        );\n\n        super.drip();\n    }\n}"
+    }
+  ]
+}

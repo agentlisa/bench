@@ -1,0 +1,12 @@
+{
+  "Title": "[8] `2**<n> - 1` should be re-written as `type(uint<n>).max`",
+  "Content": "\nEarlier versions of solidity can use `uint<n>(-1)` instead. Expressions not including the `- 1` can often be re-written to accomodate the change (e.g. by using a `>` rather than a `>=`, which will also save some gas)\n\n```solidity\nFile: solidity/contracts/CosmosToken.sol   #1\n\n5   \tuint256 MAX_UINT = 2**256 - 1;\n```\n\n<https://github.com/code-423n4/2022-05-cudos/blob/de39cf3cd1f1e1cf211819b06d4acf6a043acda0/solidity/contracts/CosmosToken.sol#L5>\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-05-cudos",
+  "Code": [
+    {
+      "filename": "solidity/contracts/CosmosToken.sol",
+      "content": "pragma solidity ^0.6.6;\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CosmosERC20 is ERC20 {\n\tuint256 MAX_UINT = 2**256 - 1;\n\n\tconstructor(\n\t\taddress _gravityAddress,\n\t\tstring memory _name,\n\t\tstring memory _symbol,\n\t\tuint8 _decimals\n\t) public ERC20(_name, _symbol) {\n\t\t_setupDecimals(_decimals);\n\t\t_mint(_gravityAddress, MAX_UINT);\n\t}\n}"
+    }
+  ]
+}

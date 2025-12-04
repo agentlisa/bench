@@ -1,0 +1,12 @@
+{
+  "Title": "Possible loss of tokens",
+  "Content": "##### Description\nhttps://github.com/pie-dao/ExperiPie/blob/facf3c246d9c43f5b1e0bad7dc2b0a9a2a2393c5/contracts/facets/ERC20/LibERC20.sol#L17\nIf the value of the `_to` parameter is equal to zero, then the tokens will be lost, because they cannot be disposed of.\nHowever, the value of the `es.totalSupply` variable will be incremented.\n\n##### Recommendation\nIn the `mint` function, we recommend adding a check for the`_to` parameter for zero.\n```solidity\nrequire(_to != address(0), \"mint to the zero address\n```\n",
+  "Impact": "MEDIUM",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/facets/ERC20/LibERC20.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.7.1;\n\nimport \"./LibERC20Storage.sol\";\nimport \"@openzeppelin/contracts/token/ERC20/IERC20.sol\";\nimport \"@openzeppelin/contracts/math/SafeMath.sol\";\n\nlibrary LibERC20 {\n  using SafeMath for uint256;\n\n  // Need to include events locally because `emit Interface.Event(params)` does not work\n  event Transfer(address indexed from, address indexed to, uint256 amount);\n\n  function mint(address _to, uint256 _amount) internal {\n    LibERC20Storage.ERC20Storage storage es = LibERC20Storage.erc20Storage();\n\n    es.balances[_to] = es.balances[_to].add(_amount);\n    es.totalSupply = es.totalSupply.add(_amount);\n    emit Transfer(address(0), _to, _amount);\n  }\n\n  function burn(address _from, uint256 _amount) internal {\n    LibERC20Storage.ERC20Storage storage es = LibERC20Storage.erc20Storage();\n\n    es.balances[_from] = es.balances[_from].sub(_amount);\n    es.totalSupply = es.totalSupply.sub(_amount);\n    emit Transfer(_from, address(0), _amount);\n  }\n}"
+    }
+  ]
+}

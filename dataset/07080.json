@@ -1,0 +1,12 @@
+{
+  "Title": "[N-01]  Unused file",
+  "Content": "The file is never imported by any other source file. If the file is needed for tests, it should be moved to a test directory\n\n*There is 1 instance of this issue:*\n\n```solidity\nFile: src/interfaces/IEIP165.sol\n\n1:    // SPDX-License-Identifier: AGPL-3.0-only\n\n```\nhttps://github.com/code-423n4/2023-01-popcorn/blob/d95fc31449c260901811196d617366d6352258cd/src/interfaces/IEIP165.sol#L1\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2023-01-popcorn",
+  "Code": [
+    {
+      "filename": "src/interfaces/IEIP165.sol",
+      "content": "// SPDX-License-Identifier: AGPL-3.0-only\npragma solidity ^0.8.15;\n\ninterface IEIP165 {\n  function supportsInterface(bytes4 interfaceId) external view returns (bool);\n}"
+    }
+  ]
+}

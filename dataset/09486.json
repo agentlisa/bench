@@ -1,0 +1,12 @@
+{
+  "Title": "[N-03] Multiple definitions of an interface",
+  "Content": "\nThese are the only two differences between `IEmptyStrategy` and `IStrategy`. `IEmptyStrategy` should be changed to be `is IStrategy` and remove the duplicate functions\n\n1.  File: src/interfaces/badger/IEmptyStrategy.sol (lines [12-14](https://github.com/code-423n4/2022-04-badger-citadel/blob/18f8c392b6fc303fe95602eba6303725023e53da/src/interfaces/badger/IEmptyStrategy.sol#L12-L14))\n\n```solidity\n    function initialize(address vault, address want) external;\n\n    function getName() external view returns (string memory);\n```\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-04-badger-citadel",
+  "Code": [
+    {
+      "filename": "src/interfaces/badger/IEmptyStrategy.sol",
+      "content": "// SPDX-License-Identifier: MIT\n\npragma solidity >= 0.5.0 <= 0.9.0;\n\ninterface IEmptyStrategy {\n    // Return value for harvest, tend and balanceOfRewards\n    struct TokenAmount {\n        address token;\n        uint256 amount;\n    }\n\n    function initialize(address vault, address want) external;\n\n    function getName() external view returns (string memory);\n\n    function balanceOf() external view returns (uint256 balance);\n\n    function balanceOfPool() external view returns (uint256 balance);\n\n    function balanceOfWant() external view returns (uint256 balance);\n\n    function earn() external;\n\n    function withdraw(uint256 amount) external;\n\n    function withdrawToVault() external;\n\n    function withdrawOther(address _asset) external;\n\n    function harvest() external returns (TokenAmount[] memory harvested);\n\n    function tend() external returns (TokenAmount[] memory tended);\n\n    function balanceOfRewards()\n        external\n        view\n        returns (TokenAmount[] memory rewards);\n\n    function emitNonProtectedToken(address _token) external;\n}"
+    }
+  ]
+}

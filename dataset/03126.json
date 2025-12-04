@@ -1,0 +1,12 @@
+{
+  "Title": "Incomplete interfaces",
+  "Content": "The [`IRouter` interface](https://github.com/forta-protocol/forta-token/blob/92d7a7ddd6672a7530a4bfc532d0d697e7f12744/contracts/components/router/IRouter.sol#L4) should have an externally accessed function which is not being declared in the interface, the [`version` getter function](https://github.com/forta-protocol/forta-token/blob/92d7a7ddd6672a7530a4bfc532d0d697e7f12744/contracts/components/router/Router.sol#L19).\n\n\nConsider declaring all externally accessed functions without access control so users and developers can make use of interfaces when using the protocol.\n\n\n***Update:** Fixed on [commit `a1f8eee474259c7b408932a7abc567116859c106` in pull request 74](https://github.com/forta-protocol/forta-token/pull/74/commits/a1f8eee474259c7b408932a7abc567116859c106). Versioned contracts now inherit from the `IVersioned` interface which declares the getter.*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/components/router/IRouter.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ninterface IRouter {\n    function hookHandler(bytes calldata) external;\n}"
+    }
+  ]
+}

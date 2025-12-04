@@ -1,0 +1,12 @@
+{
+  "Title": "Ownable’s transferOwnership fails silently",
+  "Content": "In [`transferOwnership`](https://github.com/CoinFabrik/ico/blob/142f43f3bec4afd0ffff3fce06946cf67cb0272f/contracts/Ownable.sol#L40) there’s a sanity check to see that the address argument is non-zero, which can fail silently. Consider throwing if the check doesn’t pass, by changing the line to `require (newOwner != 0x0);`.\n\n\n**Update:** Hubii replied *“The `transferOwnership` function was modified to require the `newOwner` to be non null.”* Fixed in [`5a90957abf3f792951b3aad66d6eb0317f0500ca`](https://github.com/CoinFabrik/ico/commit/5a90957abf3f792951b3aad66d6eb0317f0500ca).\n\n\n",
+  "Impact": "MEDIUM",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/Ownable.sol",
+      "content": "pragma solidity ^0.4.11;\n\n/**\n * Originally from https://github.com/OpenZeppelin/zeppelin-solidity\n * Modified by https://www.coinfabrik.com/\n */\n\n/**\n * @title Ownable\n * @dev The Ownable contract has an owner address, and provides basic authorization control \n * functions, this simplifies the implementation of \"user permissions\". \n */\ncontract Ownable {\n  address public owner;\n\n\n  /** \n   * @dev The Ownable constructor sets the original `owner` of the contract to the sender\n   * account.\n   */\n  function Ownable() {\n    owner = msg.sender;\n  }\n\n\n  /**\n   * @dev Throws if called by any account other than the owner. \n   */\n  modifier onlyOwner() {\n    require(msg.sender == owner);\n    _;\n  }\n\n\n  /**\n   * @dev Allows the current owner to transfer control of the contract to a newOwner.\n   * @param newOwner The address to transfer ownership to. \n   */\n  function transferOwnership(address newOwner) onlyOwner {\n    if (newOwner == address(0)) return;\n    owner = newOwner;\n  }\n\n}"
+    }
+  ]
+}

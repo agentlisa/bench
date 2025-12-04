@@ -1,0 +1,12 @@
+{
+  "Title": "Misuse of FinalizableCrowdsale",
+  "Content": "As [documented](https://github.com/OpenZeppelin/zeppelin-solidity/blob/v1.3.0/contracts/crowdsale/FinalizableCrowdsale.sol#L33-L37), to use `FinalizableCrowdsale` you must inherit from it and define a custom `finalization` function. Instead, in `CATCrowdsale` it was `finalize` that was [redefined](https://github.com/bitclave/crowdsale/blob/057357fecbcc00c9a6cf96831d71d94fb7a13f03/contracts/CATCrowdsale.sol#L102). Although it is not causing any problems in the code as is, the misuse of the library damages reusability. Rename `finalize` to `finalization`, including the `super.finalize()` line.\n\n\n***Update:** This was fixed in the latest version.*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/crowdsale/FinalizableCrowdsale.sol",
+      "content": "pragma solidity ^0.4.11;\n\nimport '../math/SafeMath.sol';\nimport '../ownership/Ownable.sol';\nimport './Crowdsale.sol';\n\n/**\n * @title FinalizableCrowdsale\n * @dev Extension of Crowdsale where an owner can do extra work\n * after finishing.\n */\ncontract FinalizableCrowdsale is Crowdsale, Ownable {\n  using SafeMath for uint256;\n\n  bool public isFinalized = false;\n\n  event Finalized();\n\n  /**\n   * @dev Must be called after crowdsale ends, to do some extra finalization\n   * work. Calls the contract's finalization function.\n   */\n  function finalize() onlyOwner public {\n    require(!isFinalized);\n    require(hasEnded());\n\n    finalization();\n    Finalized();\n\n    isFinalized = true;\n  }\n\n  /**\n   * @dev Can be overridden to add finalization logic. The overriding function\n   * should call super.finalization() to ensure the chain of finalization is\n   * executed entirely.\n   */\n  function finalization() internal {\n  }\n}"
+    }
+  ]
+}

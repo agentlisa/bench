@@ -1,0 +1,12 @@
+{
+  "Title": "[L-04] Unchecked `transfer` in `WithdrawFacet.sol`",
+  "Content": "\n[WithdrawFacet.sol](https://github.com/code-423n4/2022-03-lifinance/blob/main/src/Facets/WithdrawFacet.sol#L20-L36)\n\nBoolean return value for `transfer` is not checked.\n\n    assert(_amount <= self.balance);\n                payable(sendTo).transfer(_amount);\n            } else {\n\nI recommend implementing `call` instead:\n\n    (bool success, ) = sendTo.call.value(_amount)(\"\");\n    require(success, \"Transfer failed.\");\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-03-lifinance",
+  "Code": [
+    {
+      "filename": "src/Facets/WithdrawFacet.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.7;\n\nimport { IERC20 } from \"@openzeppelin/contracts/token/ERC20/IERC20.sol\";\nimport { SafeERC20 } from \"@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol\";\nimport { LibDiamond } from \"../Libraries/LibDiamond.sol\";\n\ncontract WithdrawFacet {\n    using SafeERC20 for IERC20;\n    address private constant NATIVE_ASSET = address(0);\n\n    event LogWithdraw(address indexed _assetAddress, address _from, uint256 amount);\n\n    /**\n     * @dev Withdraw asset.\n     * @param _assetAddress Asset to be withdrawn.\n     * @param _to address to withdraw to.\n     * @param _amount amount of asset to withdraw.\n     */\n    function withdraw(\n        address _assetAddress,\n        address _to,\n        uint256 _amount\n    ) public {\n        LibDiamond.enforceIsContractOwner();\n        address sendTo = (_to == address(0)) ? msg.sender : _to;\n        uint256 assetBalance;\n        if (_assetAddress == NATIVE_ASSET) {\n            address self = address(this); // workaround for a possible solidity bug\n            assert(_amount <= self.balance);\n            payable(sendTo).transfer(_amount);\n        } else {\n            assetBalance = IERC20(_assetAddress).balanceOf(address(this));\n            assert(_amount <= assetBalance);\n            IERC20(_assetAddress).safeTransfer(sendTo, _amount);\n        }\n        emit LogWithdraw(sendTo, _assetAddress, _amount);\n    }\n}"
+    }
+  ]
+}

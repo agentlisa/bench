@@ -1,0 +1,12 @@
+{
+  "Title": "[N-02] `override` function arguments that are unused should have the variable name removed or commented out to avoid compiler warnings",
+  "Content": "\n*There is 1 instance of this issue:*\n\n```solidity\nFile: contracts-full/AutoleverageCurveMetapool.sol   #1\n\n20:       function _maybeConvertCurveOutput(uint256 amountOut) internal override {}\n```\n\n<https://github.com/code-423n4/2022-05-alchemix/blob/71abbe683dfd5c0686b7e594fb4f78a14b668d8b/contracts-full/AutoleverageCurveMetapool.sol#L20>\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-05-alchemix",
+  "Code": [
+    {
+      "filename": "contracts-full/AutoleverageCurveMetapool.sol",
+      "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.11;\n\nimport {IERC20} from \"openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\";\n\nimport {ICurveMetapool} from \"./interfaces/ICurveMetapool.sol\";\n\nimport {AutoleverageBase} from \"./AutoleverageBase.sol\";\n\n/// @title A zapper for leveraged deposits into the Alchemist\ncontract AutoleverageCurveMetapool is AutoleverageBase {\n\n    /// @inheritdoc AutoleverageBase\n    function _transferTokensToSelf(address underlyingToken, uint256 collateralInitial) internal override {\n        if (msg.value > 0) revert IllegalArgument(\"msg.value should be 0\");\n        IERC20(underlyingToken).transferFrom(msg.sender, address(this), collateralInitial);\n    }\n\n    /// @inheritdoc AutoleverageBase\n    function _maybeConvertCurveOutput(uint256 amountOut) internal override {}\n\n    /// @inheritdoc AutoleverageBase\n    function _curveSwap(address poolAddress, address debtToken, int128 i, int128 j, uint256 minAmountOut) internal override returns (uint256 amountOut) {\n        // Curve swap\n        uint256 debtTokenBalance = IERC20(debtToken).balanceOf(address(this));\n        approve(debtToken, poolAddress);\n        return ICurveMetapool(poolAddress).exchange_underlying(\n            i,\n            j,\n            debtTokenBalance,\n            minAmountOut\n        );\n    }\n}"
+    }
+  ]
+}

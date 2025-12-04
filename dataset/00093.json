@@ -1,0 +1,12 @@
+{
+  "Title": "Incorrect Docstring",
+  "Content": "To improve the readability of the codebase, consider correcting the [docstring](https://github.com/MorpheusAIs/SmartContracts/blob/5e1222e8c31731cf230c2e3b709683b10a5c1b0e/contracts/interfaces/IMOROFT.sol#L9) above the `IMOROFT` interface, which states that the token is capped, however, this is not reflected in the implementation of the [`MOROFT` contract](https://github.com/MorpheusAIs/SmartContracts/blob/5e1222e8c31731cf230c2e3b709683b10a5c1b0e/contracts/MOROFT.sol).\n\n\n***Update:** Resolved in [pull request #28](https://github.com/MorpheusAIs/SmartContracts/pull/28) at commit [95b4217](https://github.com/MorpheusAIs/SmartContracts/pull/28/commits/95b4217e30fb82a59ae87377f645b5b92364e5f8).*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "contracts/interfaces/IMOROFT.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport {IERC20} from \"@openzeppelin/contracts/token/ERC20/IERC20.sol\";\nimport {IERC165} from \"@openzeppelin/contracts/utils/introspection/IERC165.sol\";\nimport {IOAppCore} from \".././@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/interfaces/IOAppCore.sol\";\n\n/**\n * This is the interface for MOROFT token contract. The token is ERC20 with cap, burnable and Layer Zero OFT features.\n */\ninterface IMOROFT is IERC20, IERC165 {\n    /**\n     * The function to get the minter address.\n     * @return The minter address.\n     */\n    function minter() external view returns (address);\n\n    /**\n     * The function to mint tokens.\n     * @param account The address of the account to mint tokens to.\n     * @param amount The amount of tokens to mint.\n     */\n    function mint(address account, uint256 amount) external;\n\n    /**\n     * The function to destroys `amount` tokens from the caller.\n     * See {ERC20-_burn}.\n     * @param amount The amount of tokens to burn.\n     */\n    function burn(uint256 amount) external;\n\n    /**\n     * The function to destroys `amount` tokens from `account`, deducting from the caller's\n     * allowance.\n     *\n     * See {ERC20-_burn} and {ERC20-allowance}.\n     *\n     * Requirements:\n     *\n     * - the caller must have allowance for ``accounts``'s tokens of at least\n     * `amount`.\n     *\n     * @param account The address of the account to burn tokens from.\n     * @param amount The amount of tokens to burn.\n     */\n    function burnFrom(address account, uint256 amount) external;\n}"
+    }
+  ]
+}

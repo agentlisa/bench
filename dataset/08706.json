@@ -1,0 +1,12 @@
+{
+  "Title": "[L-04] Low level calls with solidity version 0.8.14 can result in optimiser bug",
+  "Content": "\nhttps://github.com/code-423n4/2022-06-nested/blob/b4a153c943d54755711a2f7b80cbbf3a5bb49d76/contracts/governance/OwnerProxy.sol#L20\n\nThe protocol is using low level calls with solidity version 0.8.14 which can result in optimizer bug.\n\n### Proof of Concept\nSee POC from [Certora](https://medium.com/certora/overly-optimistic-optimizer-certora-bug-disclosure-2101e3f7994d)\n\n### Recommended Mitigation Steps\nConsider upgrading to solidity 0.8.15.\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/contests/2022-06-nested-finance-contest",
+  "Code": [
+    {
+      "filename": "contracts/governance/OwnerProxy.sol",
+      "content": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity 0.8.14;\n\nimport \"@openzeppelin/contracts/access/Ownable.sol\";\n\n/// @title Owner proxy to run atomic actions.\n/// @notice DSProxy-like contract without a cache to simply run\n///         a sequence of atomic actions.\ncontract OwnerProxy is Ownable {\n    /// @notice Execute atomic actions. Only the owner can call this function (e.g. the timelock)\n    /// @param _target Address of the \"script\" to perform a delegatecall\n    /// @param _data The bytes calldata\n    /// @return response The delegatecall response\n    /// @dev Fork from https://github.com/dapphub/ds-proxy/blob/e17a2526ad5c9877ba925ff25c1119f519b7369b/src/proxy.sol#L53\n    /// @dev bytes4 selector must be included in the calldata (_data)\n    function execute(address _target, bytes memory _data) public payable onlyOwner returns (bytes memory response) {\n        require(_target != address(0), \"OP: INVALID_TARGET\");\n\n        // call contract in current context\n        assembly {\n            let succeeded := delegatecall(sub(gas(), 5000), _target, add(_data, 0x20), mload(_data), 0, 0)\n            let size := returndatasize()\n\n            response := mload(0x40)\n            mstore(0x40, add(response, and(add(add(size, 0x20), 0x1f), not(0x1f))))\n            mstore(response, size)\n            returndatacopy(add(response, 0x20), 0, size)\n\n            switch iszero(succeeded)\n            case 1 {\n                // throw if delegatecall failed\n                revert(add(response, 0x20), size)\n            }\n        }\n    }\n}"
+    }
+  ]
+}

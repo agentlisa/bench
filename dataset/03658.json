@@ -1,0 +1,12 @@
+{
+  "Title": "[L01] Discarded return value",
+  "Content": "The `makeCall` function of the `IdentityProxy` contract allows an authorized user to [make an arbitrary call](https://github.com/celo-org/celo-monorepo/blob/f64b4c5b5228ecbf41e3e7cfdbb8c0e9a983eea2/packages/protocol/contracts/identity/IdentityProxy.sol#L25) on behalf of the contract. However, the return value of the call is discarded, which unnecessarily limits the possible use cases. Consider bubbling the return value back to the caller so they can react to it.\n\n\n**Update:** *Fixed in commits [d417345](https://github.com/celo-org/celo-monorepo/commit/d4173450bec550eec92c07a1e0dd0acb0720b32e) and [cba251c](https://github.com/celo-org/celo-monorepo/commit/cba251cccd8495bbe6fb3a551714b2d895db6641).*\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "packages/protocol/contracts/identity/IdentityProxy.sol",
+      "content": "pragma solidity ^0.5.13;\n\nimport \"../common/ExternalCall.sol\";\n\ncontract IdentityProxy {\n  address public deployer;\n\n  constructor() public {\n    deployer = msg.sender;\n  }\n\n  modifier onlyDeployer() {\n    require(msg.sender == deployer, \"Only callable by original deployer\");\n    _;\n  }\n\n  /**\n   * @notice Performs an arbitrary call.\n   * @param destination The address the call.\n   * @param data The calldata to send with the call.\n   * @dev This can only be called by the deployer of this contract, presumably\n   * the IdentityProxyHub after it checks the identity heuristic.\n   */\n  function makeCall(address destination, bytes calldata data) external payable onlyDeployer {\n    ExternalCall.execute(destination, msg.value, data);\n  }\n}"
+    }
+  ]
+}

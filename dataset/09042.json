@@ -1,0 +1,12 @@
+{
+  "Title": "[G-19] `abi.encode()` is less efficient than `abi.encodePacked()`",
+  "Content": "\n*There is 1 instance of this issue:*\n\n```solidity\nFile: contracts/contracts/redeem/RedemptionSender.sol   #1\n\n46:               abi.encode(msg.sender, amount),\n```\n\n<https://github.com/code-423n4/2022-05-velodrome/blob/7fda97c570b758bbfa7dd6724a336c43d4041740/contracts/contracts/redeem/RedemptionSender.sol#L46>\n\n",
+  "Impact": "GAS",
+  "Source": "https://code4rena.com/reports/2022-05-velodrome",
+  "Code": [
+    {
+      "filename": "contracts/contracts/redeem/RedemptionSender.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity 0.8.13;\n\nimport \"LayerZero/interfaces/ILayerZeroEndpoint.sol\";\nimport \"../interfaces/IERC20.sol\";\n\n/// @notice Part 1 of 2 in the WeVE (FTM) -> USDC + VELO (OP) redemption process\n/// This contract is responsible for burning WeVE and sending the LZ message\ncontract RedemptionSender {\n    address public immutable weve;\n    uint16 public immutable optimismChainId; // 11 for OP, 10011 for OP Kovan\n    address public immutable endpoint;\n    address public immutable optimismReceiver;\n\n    constructor(\n        address _weve,\n        uint16 _optimismChainId,\n        address _endpoint,\n        address _optimismReceiver\n    ) {\n        require(_optimismChainId == 11 || _optimismChainId == 10011, \"CHAIN_ID_NOT_OP\");\n        weve = _weve;\n        optimismChainId = _optimismChainId;\n        endpoint = _endpoint;\n        optimismReceiver = _optimismReceiver;\n    }\n\n    function redeemWEVE(\n        uint256 amount,\n        address zroPaymentAddress,\n        bytes memory zroTransactionParams\n    ) public payable {\n        require(amount != 0, \"AMOUNT_ZERO\");\n        require(\n            IERC20(weve).transferFrom(\n                msg.sender,\n                0x000000000000000000000000000000000000dEaD,\n                amount\n            ),\n            \"WEVE: TRANSFER_FAILED\"\n        );\n\n        ILayerZeroEndpoint(endpoint).send{value: msg.value}(\n            optimismChainId,\n            abi.encodePacked(optimismReceiver),\n            abi.encode(msg.sender, amount),\n            payable(msg.sender),\n            zroPaymentAddress,\n            zroTransactionParams\n        );\n    }\n}"
+    }
+  ]
+}

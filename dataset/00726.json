@@ -1,0 +1,12 @@
+{
+  "Title": "No Access Control on ReserveFeed Contract",
+  "Content": "The [`ReserveFeed` contract](https://github.com/Ion-Protocol/ion-protocol/blob/98e282514ac5827196b49f688938e1e44709505a/src/oracles/reserve/ReserveFeed.sol#L4) tracks exchange rates for each collateral type. The [`setExchangeRate` function](https://github.com/Ion-Protocol/ion-protocol/blob/98e282514ac5827196b49f688938e1e44709505a/src/oracles/reserve/ReserveFeed.sol#L7) does not contain any access control or input validation. This would allow anyone to set any price for any collateral type.\n\n\nConsider implementing access control on the `setExchangeRate` function to ensure that only trusted users can update the tracked rates.\n\n\n***Update:** Resolved in [pull request #20](https://github.com/Ion-Protocol/ion-protocol/pull/20).*\n\n\n",
+  "Impact": "HIGH",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "src/oracles/reserve/ReserveFeed.sol",
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity 0.8.21;\n\ncontract ReserveFeed {\n    mapping(uint8 ilkIndex => uint256 exchangeRate) public exchangeRates;\n\n    function setExchangeRate(uint8 _ilkIndex, uint256 _exchangeRate) external {\n        exchangeRates[_ilkIndex] = _exchangeRate;\n    }\n\n    function getExchangeRate(uint8 _ilkIndex) external view returns (uint256) {\n        return exchangeRates[_ilkIndex];\n    }\n}"
+    }
+  ]
+}

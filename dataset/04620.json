@@ -1,0 +1,12 @@
+{
+  "Title": "Update to latest OpenZeppelin version",
+  "Content": "The project uses version [1.1.0 of OpenZeppelin](https://github.com/decentraland/mana/blob/master/package.json#L10). [Version 1.2.0](https://github.com/OpenZeppelin/zeppelin-solidity/releases/tag/v1.2.0) was released a few days ago, which fixes ERC20 compliance. We recommend updating OpenZeppelin to 1.2.0, by changing the required version in *package.json*.\n\n\n**EDIT:** fixed in commit [`03ab3fe4567227569d778955f8e36b12b3d46898`](https://github.com/decentraland/mana/commit/03ab3fe4567227569d778955f8e36b12b3d46898).\n\n\n",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "package.json",
+      "content": "{\n  \"name\": \"decentraland-mana\",\n  \"version\": \"0.0.0-semantic-release\",\n  \"description\": \"Solidity Contracts for the Decentraland MANA Token\",\n  \"main\": \"y\",\n  \"directories\": {\n    \"test\": \"test\"\n  },\n  \"dependencies\": {\n    \"sha3\": \"^1.2.1\",\n    \"truffle-hdwallet-provider\": \"0.0.3\",\n    \"zeppelin-solidity\": \"1.2.0\"\n  },\n  \"devDependencies\": {\n    \"babel-polyfill\": \"^6.26.0\",\n    \"babel-preset-env\": \"^1.6.1\",\n    \"babel-preset-flow\": \"^6.23.0\",\n    \"babel-register\": \"^6.26.0\",\n    \"chai\": \"^4.1.2\",\n    \"chai-as-promised\": \"^7.1.1\",\n    \"chai-bignumber\": \"^2.0.2\",\n    \"eslint\": \"^4.19.1\",\n    \"eslint-config-standard\": \"^10.2.1\",\n    \"eslint-plugin-import\": \"^2.11.0\",\n    \"eslint-plugin-node\": \"^5.2.1\",\n    \"eslint-plugin-promise\": \"^3.7.0\",\n    \"eslint-plugin-standard\": \"^3.1.0\",\n    \"ganache-cli\": \"^6.1.0\",\n    \"husky\": \"^1.3.1\",\n    \"semantic-release\": \"^15.13.3\",\n    \"truffle\": \"^3.4.11\",\n    \"validate-commit-msg\": \"^2.14.0\"\n  },\n  \"scripts\": {\n    \"test\": \"./scripts/test.sh\",\n    \"eslint\": \"eslint test/\",\n    \"semantic-release\": \"semantic-release\",\n    \"commit-msg\": \"validate-commit-msg\",\n    \"compile\": \"truffle compile\"\n  },\n  \"repository\": {\n    \"type\": \"git\",\n    \"url\": \"git+https://github.com/decentraland/mana.git\"\n  },\n  \"keywords\": [\n    \"decentraland\",\n    \"mana\",\n    \"solidity\",\n    \"truffle\",\n    \"crowdsale\"\n  ],\n  \"author\": \"Federico Bond\",\n  \"license\": \"MIT\",\n  \"bugs\": {\n    \"url\": \"https://github.com/decentraland/mana/issues\"\n  },\n  \"homepage\": \"https://github.com/decentraland/mana#readme\"\n}"
+    }
+  ]
+}

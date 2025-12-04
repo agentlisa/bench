@@ -1,0 +1,12 @@
+{
+  "Title": "[N-01] Unneeded import",
+  "Content": "\n*There is 1 instance of this issue:*\n```solidity\nFile: protocol/contracts/tokenomics/BkdToken.sol   #1\n\n8:   import \"../../libraries/ScaledMath.sol\";\n```\nhttps://github.com/code-423n4/2022-05-backd/blob/2a5664d35cde5b036074edef3c1369b984d10010/protocol/contracts/tokenomics/BkdToken.sol#L8\n\n",
+  "Impact": "LOW",
+  "Source": "https://code4rena.com/reports/2022-05-backd",
+  "Code": [
+    {
+      "filename": "protocol/contracts/tokenomics/BkdToken.sol",
+      "content": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity 0.8.10;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\nimport \"../../interfaces/tokenomics/IBkdToken.sol\";\n\nimport \"../../libraries/ScaledMath.sol\";\nimport \"../../libraries/Errors.sol\";\n\ncontract BkdToken is IBkdToken, ERC20 {\n    using ScaledMath for uint256;\n\n    address public immutable minter;\n\n    constructor(\n        string memory name_,\n        string memory symbol_,\n        address _minter\n    ) ERC20(name_, symbol_) {\n        minter = _minter;\n    }\n\n    /**\n     * @notice Mints tokens for a given address.\n     * @dev Fails if msg.sender is not the minter.\n     * @param account Account for which tokens should be minted.\n     * @param amount Amount of tokens to mint.\n     */\n    function mint(address account, uint256 amount) external override {\n        require(msg.sender == minter, Error.UNAUTHORIZED_ACCESS);\n        _mint(account, amount);\n    }\n}"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "Title": "[G-14] Cache array length in for loops can save gas",
+  "Content": "*Note: Minor optimation, the amount of gas saved is minor, change when you see fit.*\r\n\r\nReading array length at each iteration of the loop takes 6 gas (3 for mload and 3 to place memory_offset) in the stack.\r\n\r\nCaching the array length in the stack saves around 3 gas per iteration.\r\n\r\nInstances include:\r\n\r\n*   `ConcurRewardPool.sol#claimRewards()`\r\n\r\n    [ConcurRewardPool.sol#L35-L39](https://github.com/code-423n4/2022-02-concur/blob/72b5216bfeaa7c52983060ebfc56e72e0aa8e3b0/contracts/ConcurRewardPool.sol#L35-L39)",
+  "Impact": "GAS",
+  "Source": "https://code4rena.com/contests/2022-02-concur-finance-contest",
+  "Code": [
+    {
+      "filename": "contracts/ConcurRewardPool.sol",
+      "content": "// SPDX-License-Identifier: MIT\n\npragma solidity ^0.8.11;\n\nimport {IERC20} from \"@openzeppelin/contracts/token/ERC20/IERC20.sol\";\nimport {SafeERC20} from \"@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol\";\nimport {IConcurRewardClaim} from \"./interfaces/IConcurRewardClaim.sol\";\n\ncontract ConcurRewardPool is IConcurRewardClaim {\n    using SafeERC20 for IERC20;\n    address public immutable rewardNotifier;\n\n    mapping(address => mapping(address => uint256)) public reward;\n\n    constructor(address _notifier) {\n        rewardNotifier = _notifier;\n    }\n\n    /// @notice push reward to `_recipient`\n    /// @param _recipient reward recipient address\n    /// @param _token token to reward\n    /// @param _amount amount of tokens to allocate to `_recipient`\n    function pushReward(\n        address _recipient,\n        address _token,\n        uint256 _amount\n    ) external override {\n        require(msg.sender == rewardNotifier, \"!notifier\");\n        reward[_recipient][_token] += _amount;\n    }\n\n    /// @notice claim rewards of `msg.sender`\n    /// @param _tokens array of tokens to claim\n    function claimRewards(address[] calldata _tokens) external override {\n        for (uint256 i = 0; i < _tokens.length; i++) {\n            uint256 getting = reward[msg.sender][_tokens[i]];\n            IERC20(_tokens[i]).safeTransfer(msg.sender, getting);\n            reward[msg.sender][_tokens[i]] = 0;\n        }\n    }\n}"
+    }
+  ]
+}

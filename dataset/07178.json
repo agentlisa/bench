@@ -1,0 +1,12 @@
+{
+  "Title": "[G-18] OpenZeppelin's ReentrancyGuard contract is gas-optimized",
+  "Content": "\n```solidity\npackages/v2-pool/src/libraries/ReentrancyGuard.sol:\n  11:     /// @dev The initial state which must be change to NOT_ENTERED when first interacting.\n  12:     uint96 internal constant NOT_INTERACTED = 0;\n  13: \n  14:     /// @dev The initial and ending state of balanceTarget in the Option struct.\n  15:     uint96 internal constant NOT_ENTERED = 1;\n  16: \n  17:     /// @dev The state where the contract is currently being interacted with.\n  18:     uint96 internal constant ENTERED = 2;\n```\nhttps://github.com/code-423n4/2023-01-timeswap/blob/main/packages/v2-pool/src/libraries/ReentrancyGuard.sol#L12-L18\n\n\nI recommend using the gas-optimized OpenZeppelin ReentrancyGuard.sol contract.\n\nhttps://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/security/ReentrancyGuard.sol\n\n\n",
+  "Impact": "GAS",
+  "Source": "https://code4rena.com/reports/2023-01-timeswap",
+  "Code": [
+    {
+      "filename": "packages/v2-pool/src/libraries/ReentrancyGuard.sol",
+      "content": "//SPDX-License-Identifier: Unlicense\npragma solidity =0.8.8;\n\nlibrary ReentrancyGuard {\n    /// @dev Reverts when their is a reentrancy to a single option.\n    error NoReentrantCall();\n\n    /// @dev Reverts when the option, pool, or token id is not interacted yet.\n    error NotInteracted();\n\n    /// @dev The initial state which must be change to NOT_ENTERED when first interacting.\n    uint96 internal constant NOT_INTERACTED = 0;\n\n    /// @dev The initial and ending state of balanceTarget in the Option struct.\n    uint96 internal constant NOT_ENTERED = 1;\n\n    /// @dev The state where the contract is currently being interacted with.\n    uint96 internal constant ENTERED = 2;\n\n    /// @dev Check if there is a reentrancy in an option.\n    /// @notice Reverts when balanceTarget is not zero.\n    /// @param reentrancyGuard The balance being inquired.\n    function check(uint96 reentrancyGuard) internal pure {\n        if (reentrancyGuard == NOT_INTERACTED) revert NotInteracted();\n        if (reentrancyGuard == ENTERED) revert NoReentrantCall();\n    }\n}"
+    }
+  ]
+}

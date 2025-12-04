@@ -1,0 +1,12 @@
+{
+  "Title": "[G-14] State variables only set in the constructor should be declared `immutable`",
+  "Content": "\n1.  File: contracts/pcv/compound/ERC20CompoundPCVDeposit.sol (line [16](https://github.com/code-423n4/2022-03-volt/blob/f1210bf3151095e4d371c9e9d7682d9031860bbd/contracts/pcv/compound/ERC20CompoundPCVDeposit.sol#L16))\n\n```solidity\n    IERC20 public token;\n```\n\n",
+  "Impact": "GAS",
+  "Source": "https://code4rena.com/contests/2022-03-volt-protocol-contest",
+  "Code": [
+    {
+      "filename": "contracts/pcv/compound/ERC20CompoundPCVDeposit.sol",
+      "content": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity ^0.8.0;\n\nimport \"./CompoundPCVDepositBase.sol\";\n\ninterface CErc20 {\n    function mint(uint256 amount) external returns (uint256);\n\n    function underlying() external returns (address);\n}\n\n/// @title ERC-20 implementation for a Compound PCV Deposit\n/// @author Fei Protocol\ncontract ERC20CompoundPCVDeposit is CompoundPCVDepositBase {\n    /// @notice the token underlying the cToken\n    IERC20 public token;\n\n    /// @notice Compound ERC20 PCV Deposit constructor\n    /// @param _core Fei Core for reference\n    /// @param _cToken Compound cToken to deposit\n    constructor(address _core, address _cToken)\n        CompoundPCVDepositBase(_core, _cToken)\n    {\n        token = IERC20(CErc20(_cToken).underlying());\n    }\n\n    /// @notice deposit ERC-20 tokens to Compound\n    function deposit() external override whenNotPaused {\n        uint256 amount = token.balanceOf(address(this));\n\n        token.approve(address(cToken), amount);\n\n        // Compound returns non-zero when there is an error\n        require(\n            CErc20(address(cToken)).mint(amount) == 0,\n            \"ERC20CompoundPCVDeposit: deposit error\"\n        );\n\n        emit Deposit(msg.sender, amount);\n    }\n\n    function _transferUnderlying(address to, uint256 amount) internal override {\n        SafeERC20.safeTransfer(token, to, amount);\n    }\n\n    /// @notice display the related token of the balance reported\n    function balanceReportedIn() public view override returns (address) {\n        return address(token);\n    }\n}"
+    }
+  ]
+}

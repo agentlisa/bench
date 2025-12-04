@@ -1,0 +1,12 @@
+{
+  "Title": "`InitBipBasinIntegration` NatSpec title tag is inconsistent with the file/contract name",
+  "Content": "The [title tag](https://github.com/BeanstalkFarms/Beanstalk/blob/12c608a22535e3a1fe379db1153185fe43851ea7/protocol/contracts/beanstalk/init/InitBipBasinIntegration.sol#L17) of the `InitBipBasinIntegration` NatSpec is inconsistent with the file/contract name and should be updated to match.\n\n**Beanstalk Farms:** Fixed in commit [c03f635](https://github.com/BeanstalkFarms/Beanstalk/pull/655/commits/c03f635ef655eb80a2f6a270c41f19bcbd4a66ad).\n\n**Cyfrin:** Acknowledged.",
+  "Impact": "LOW",
+  "Source": "",
+  "Code": [
+    {
+      "filename": "protocol/contracts/beanstalk/init/InitBipBasinIntegration.sol",
+      "content": "/*\n SPDX-License-Identifier: MIT\n*/\n\npragma solidity =0.7.6;\npragma experimental ABIEncoderV2;\n\nimport {AppStorage} from \"../AppStorage.sol\";\nimport {C} from \"contracts/C.sol\";\nimport {LibWhitelist} from \"contracts/libraries/Silo/LibWhitelist.sol\";\nimport {LibDiamond} from \"contracts/libraries/LibDiamond.sol\";\n\n\n\n/**\n * @author Publius\n * @title InitBipWellsIntegration runs the code for the Basin Integration\n**/\n\ninterface IBDVFacet {\n    function wellBdv(address token, uint256 amount)\n        external\n        view\n        returns (uint256);\n}\n\ncontract InitBipBasinIntegration {\n\n    AppStorage internal s;\n\n    uint32 constant private NEW_BEAN_SEEDS_PER_BDV = 3e6;\n    uint32 constant private NEW_BEAN_3CRV_SEEDS_PER_BDV = 3.25e6;\n    uint32 constant private BEAN_ETH_SEEDS_PER_BDV = 4.5e6;\n\n    uint32 constant private STALK_ISSUED_PER_BDV = 10000;\n    \n    \n    function init() external {\n        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();\n\n        LibWhitelist.updateStalkPerBdvPerSeasonForToken(C.BEAN, NEW_BEAN_SEEDS_PER_BDV);\n        LibWhitelist.updateStalkPerBdvPerSeasonForToken(C.CURVE_BEAN_METAPOOL, NEW_BEAN_3CRV_SEEDS_PER_BDV);\n        LibWhitelist.whitelistToken(\n            C.BEAN_ETH_WELL,\n            IBDVFacet.wellBdv.selector,\n            STALK_ISSUED_PER_BDV,\n            BEAN_ETH_SEEDS_PER_BDV,\n            0x01\n        );\n\n        s.beanEthPrice = 1;\n\n        // adds ERC1155MetadataURI for ERC165 Interface ID\n        ds.supportedInterfaces[0x0e89341c] = true;\n    }\n}"
+    }
+  ]
+}

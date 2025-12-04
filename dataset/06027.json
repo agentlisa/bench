@@ -1,0 +1,12 @@
+{
+  "Title": "[G-15] A modifier used only once and not being inherited should be inlined to save gas",
+  "Content": "\n```solidity\nfile:  contracts/helper/FixedOracle.sol\n\n10  modifier onlyOwner() {\n```\nhttps://github.com/code-423n4/2023-08-goodentry/blob/main/contracts/helper/FixedOracle.sol#L10\n\n",
+  "Impact": "GAS",
+  "Source": "https://code4rena.com/reports/2023-08-goodentry",
+  "Code": [
+    {
+      "filename": "contracts/helper/FixedOracle.sol",
+      "content": "pragma solidity ^0.8.0;\n\ncontract HardcodedPriceOracle {\n    event SetHardcodedPrice(int256 price);\n\n    int256 private hardcodedPrice;\n    address private owner;\n    \n\n    modifier onlyOwner() {\n        require(msg.sender == owner, \"Only the owner can call this function.\");\n        _;\n    }\n\n    constructor(int256 _hardcodedPrice) {\n        owner = msg.sender;\n        hardcodedPrice = _hardcodedPrice;\n    }\n\n    function latestAnswer() external view returns (int256) {\n        return hardcodedPrice;\n    }\n\n    function setHardcodedPrice(int256 _hardcodedPrice) external onlyOwner {\n        hardcodedPrice = _hardcodedPrice;\n        emit SetHardcodedPrice(_hardcodedPrice);\n    }\n\n    function latestRoundData()\n        external\n        view\n        returns (\n            uint80 roundId,\n            int256 answer,\n            uint256 startedAt,\n            uint256 updatedAt,\n            uint80 answeredInRound\n        )\n    {\n        roundId = uint80(block.number);\n        answer = hardcodedPrice;\n        startedAt = block.timestamp;\n        updatedAt = block.timestamp;\n        answeredInRound = roundId;\n    }\n}"
+    }
+  ]
+}
