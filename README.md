@@ -25,6 +25,11 @@ LISA-Bench provides standardized evaluation for vulnerability detection systems.
 - Severity assessment: Risk rating alignment with expert classification
 - Root cause analysis: Accurate vulnerability mechanism explanation
 
+### How to evaluate an LLM
+1. Download the repository and install dependencies.
+2. Set up your OpenAI API key, base URL and model name in the `.env` file.
+3. Run `main.py` to evaluate the model on the 500-high-risk benchmark dataset.
+
 ### Evaluation Metrics
 - Detection Rate: Percentage of vulnerabilities correctly identified
 - False Positive Rate: Frequency of incorrect flags
