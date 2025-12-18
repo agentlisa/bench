@@ -1,4 +1,5 @@
 from langchain_openai import ChatOpenAI
+from langchain_core.callbacks import UsageMetadataCallbackHandler 
 import os
 
 
@@ -23,24 +24,24 @@ class OpenAIEvaluator(Evaluator):
             base_url = self.base_url,
         )
         self.total_tokens = 0
-        self.prompt_tokens = 0
-        self.completion_tokens = 0
+        self.input_tokens = 0
+        self.output_tokens = 0
 
     def evaluate(self, code: str) -> tuple[str, dict]:
-        response = self.llm.invoke(PREDICT_PROMPT + "\n\n" + code)
+        
+        callback = UsageMetadataCallbackHandler() 
+        response = self.llm.invoke(PREDICT_PROMPT + "\n\n" + code, config={"callbacks": [callback]})
+        
         
         # Extract token usage from response
-        token_usage = {}
-        if hasattr(response, 'response_metadata'):
-            usage = response.response_metadata.get('token_usage', {})
-            token_usage = {
-                'prompt_tokens': usage.get('prompt_tokens', 0),
-                'completion_tokens': usage.get('completion_tokens', 0),
-                'total_tokens': usage.get('total_tokens', 0)
-            }
-            self.prompt_tokens += token_usage['prompt_tokens']
-            self.completion_tokens += token_usage['completion_tokens']
-            self.total_tokens += token_usage['total_tokens']
+        token_usage = {
+            'input_tokens': callback.usage_metadata.get(self.model_name).get('input_tokens', 0),
+            'output_tokens': callback.usage_metadata.get(self.model_name).get('output_tokens', 0),
+            'total_tokens': callback.usage_metadata.get(self.model_name).get('total_tokens', 0)
+        }
+        self.input_tokens += token_usage['input_tokens']
+        self.output_tokens += token_usage['output_tokens']
+        self.total_tokens += token_usage['total_tokens']
         
         return response.content, token_usage
 

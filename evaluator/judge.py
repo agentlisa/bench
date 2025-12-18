@@ -1,4 +1,5 @@
 from langchain_openai import ChatOpenAI
+from langchain_core.callbacks import UsageMetadataCallbackHandler 
 from pydantic import BaseModel, Field
 import os
 
@@ -7,16 +8,16 @@ class JudgeResult(BaseModel):
     result: bool = Field(..., description="Whether the submission contains the ground truth.")
 
 class Judge:
-    def __init__(self) -> None:
-        model_name = "gpt-5-nano"
+    def __init__(self, model_name: str = "gpt-5-nano") -> None:
         self.llm = ChatOpenAI(
             model=model_name,
             api_key=os.getenv("OPENAI_API_KEY"),
             base_url=os.getenv("OPENAI_BASE_URL"),
         )
+        self.model_name = model_name
         self.total_tokens = 0
-        self.prompt_tokens = 0
-        self.completion_tokens = 0
+        self.input_tokens = 0
+        self.output_tokens = 0
 
     def judge(self, submission: str, ground_truth: str) -> tuple[bool, dict]:
         prompt = f"""
@@ -30,20 +31,18 @@ class Judge:
         {ground_truth}
 
         """
-        response = self.llm.with_structured_output(JudgeResult).invoke(prompt)
+        callback = UsageMetadataCallbackHandler() 
+        response = self.llm.with_structured_output(JudgeResult).invoke(prompt, config={"callbacks": [callback]})
         
         # Extract token usage from response
-        token_usage = {}
-        if hasattr(response, 'response_metadata'):
-            usage = response.response_metadata.get('token_usage', {})
-            token_usage = {
-                'prompt_tokens': usage.get('prompt_tokens', 0),
-                'completion_tokens': usage.get('completion_tokens', 0),
-                'total_tokens': usage.get('total_tokens', 0)
-            }
-            self.prompt_tokens += token_usage['prompt_tokens']
-            self.completion_tokens += token_usage['completion_tokens']
-            self.total_tokens += token_usage['total_tokens']
+        token_usage = {
+            'input_tokens': callback.usage_metadata.get(self.model_name).get('input_tokens', 0),
+            'output_tokens': callback.usage_metadata.get(self.model_name).get('output_tokens', 0),
+            'total_tokens': callback.usage_metadata.get(self.model_name).get('total_tokens', 0)
+        }
+        self.input_tokens += token_usage['input_tokens']
+        self.output_tokens += token_usage['output_tokens']
+        self.total_tokens += token_usage['total_tokens']
         
         return response.result, token_usage
 
